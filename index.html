@@ -13,14 +13,20 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div>
-        <div class="brand">Costee</div>
-        <div class="subtitle" id="todayLabel"></div>
+      <div class="brand-wrap">
+        <span class="brand-logo" id="brandMascot" aria-hidden="true"></span>
+        <div>
+          <div class="brand">Costee</div>
+          <div class="subtitle" id="todayLabel"></div>
+        </div>
       </div>
       <button class="sync" id="syncBtn" type="button" aria-label="Trạng thái đồng bộ">
         <span class="dot" id="syncDot"></span><span id="syncText">Trên máy</span>
@@ -31,11 +37,11 @@
   </div>
 
   <nav class="tabbar" aria-label="Điều hướng">
-    <button data-view="today" class="active" type="button"><span class="ti">◎</span><span>Hôm nay</span></button>
-    <button data-view="report" type="button"><span class="ti">▥</span><span>Báo cáo</span></button>
-    <button class="fab" id="fab" type="button" aria-label="Thêm khoản chi">+</button>
-    <button data-view="history" type="button"><span class="ti">☰</span><span>Lịch sử</span></button>
-    <button data-view="settings" type="button"><span class="ti">⚙</span><span>Cài đặt</span></button>
+    <button data-view="today" class="active" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></svg><span>Hôm nay</span></button>
+    <button data-view="report" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 19v-6M12 19V7M18 19v-9"/></svg><span>Báo cáo</span></button>
+    <button class="fab" id="fab" type="button" aria-label="Thêm khoản chi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button data-view="history" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 7h10M9 12h10M9 17h10"/><circle cx="5" cy="7" r=".8" fill="currentColor"/><circle cx="5" cy="12" r=".8" fill="currentColor"/><circle cx="5" cy="17" r=".8" fill="currentColor"/></svg><span>Lịch sử</span></button>
+    <button data-view="settings" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg><span>Cài đặt</span></button>
   </nav>
 
   <!-- Thêm / sửa khoản chi -->
@@ -44,7 +50,7 @@
     <div class="sheet-handle"></div>
     <form id="txForm" autocomplete="off">
       <div class="sheet-head">
-        <h2 id="sheetTitle">Thêm khoản chi</h2>
+        <h2><span id="sheetMascot" aria-hidden="true"></span><span id="sheetTitle">Thêm khoản chi</span></h2>
         <button type="button" class="icon-btn" id="sheetClose" aria-label="Đóng">✕</button>
       </div>
 
