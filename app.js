@@ -63,7 +63,7 @@
   /* ================= Mascot: bé Mầm ================= */
   /** mood: happy | ok | worried | shocked | sleepy | proud */
   function mascot(mood, cls) {
-    var ink = '#1f3a2e', body = '#fbf6ea', leaf = '#4f8f70', leaf2 = '#1f4d3a', cheek = '#ecb9ad', coin = '#d9bf86';
+    var ink = '#4a4636', body = '#f3ead2', leaf = '#9bb97c', leaf2 = '#5e7d63', cheek = '#f2b9a0', coin = '#e2b65a';
     var droop = mood === 'shocked' || mood === 'worried';
     var s = '<svg class="' + (cls || '') + '" viewBox="0 0 120 120" aria-hidden="true" focusable="false">';
     s += '<ellipse cx="60" cy="112" rx="30" ry="4" fill="rgba(0,0,0,.08)"/>';
@@ -87,7 +87,7 @@
       if (mood === 'worried') s += g.replace('2.6', '2.2') + '<path d="M37 62 L49 65"/><path d="M83 62 L71 65"/></g>';
     }
     // miệng
-    if (mood === 'happy' || mood === 'proud') s += '<path d="M53 81 Q60 92 67 81Z" fill="#d9776f" stroke="' + ink + '" stroke-width="2.6" stroke-linejoin="round"/>';
+    if (mood === 'happy' || mood === 'proud') s += '<path d="M53 81 Q60 92 67 81Z" fill="#e08f78" stroke="' + ink + '" stroke-width="2.6" stroke-linejoin="round"/>';
     else if (mood === 'ok') s += '<path d="M54 82 Q60 87 66 82" fill="none" stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round"/>';
     else if (mood === 'worried') s += '<path d="M53 86 Q56.5 82 60 86 Q63.5 90 67 86" fill="none" stroke="' + ink + '" stroke-width="2.8" stroke-linecap="round"/>';
     else if (mood === 'shocked') s += '<ellipse cx="60" cy="88" rx="5" ry="6" fill="' + ink + '"/>';
@@ -152,6 +152,10 @@
     store.set('lastSync', state.lastSync);
   }
 
+  function catTint(name) {
+    var i = state.settings.categories.findIndex(function (c) { return c.name === name; });
+    return 'tint-' + ((i < 0 ? name.length : i) % 4);
+  }
   function catIcon(name) {
     var c = state.settings.categories.filter(function (x) { return x.name === name; })[0];
     return c ? c.icon : '📦';
@@ -340,7 +344,7 @@
     var d = parseYmd(t.date);
     var sub = (showDate ? DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + ' · ' : '') + esc(t.category);
     return '<li><button type="button" class="tx" data-edit="' + esc(t.id) + '">' +
-      '<span class="ic">' + catIcon(t.category) + '</span>' +
+      '<span class="ic ' + catTint(t.category) + '">' + catIcon(t.category) + '</span>' +
       '<span class="mid"><span class="t1">' + esc(t.note || t.category) + (t.type === 'saved' ? '<span class="tag green">nhịn được</span>' : t.amount >= 1000000 ? '<span class="tag">khoản lớn</span>' : '') + '</span><span class="t2">' + sub + '</span></span>' +
       '<span class="amt num' + (t.type === 'saved' ? ' saved' : '') + '">' + (t.type === 'saved' ? '+' : '−') + money(t.amount) + '</span>' +
       '</button></li>';
@@ -610,7 +614,7 @@
         var pv = prevCats[c.name] || 0;
         var ch = pv ? Math.round((c.total - pv) / pv * 100) : null;
         var third = running || ch === null ? Math.round(pct) + '%' : '<span class="delta ' + (ch > 0 ? 'up' : ch < 0 ? 'down' : 'flat') + '">' + (ch > 0 ? '▲ ' : ch < 0 ? '▼ ' : '') + Math.abs(ch) + '%</span>';
-        html += '<tr><td><div class="nm"><span class="ic">' + catIcon(c.name) + '</span><span style="flex:1;min-width:0">' + esc(c.name) + '<small>' + counts[c.name] + ' khoản · ' + Math.round(pct) + '%</small>' +
+        html += '<tr><td><div class="nm"><span class="ic ' + catTint(c.name) + '">' + catIcon(c.name) + '</span><span style="flex:1;min-width:0">' + esc(c.name) + '<small>' + counts[c.name] + ' khoản · ' + Math.round(pct) + '%</small>' +
           '<div class="share"><span style="width:' + pct.toFixed(1) + '%"></span></div></span></div></td>' +
           '<td class="num">' + money(c.total) + '</td><td class="pct num">' + third + '</td></tr>';
       });
@@ -1081,7 +1085,7 @@
 
   /* ================= Boot ================= */
   if (location.hash === '#add') { history.replaceState(null, '', location.pathname); setTimeout(function () { openSheet(null); }, 50); }
-  $('#brandMascot').innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#1f4d3a"/><circle cx="20" cy="20" r="15.5" fill="none" stroke="#d9bf86" stroke-width=".8"/><path d="M20 29 V18" stroke="#f8f4ea" stroke-width="1.6" stroke-linecap="round"/><path d="M20 19 C15 12 10 13 9.5 17 C13 21 17 21 20 19Z" fill="#f8f4ea"/><path d="M20 17 C24 9 30 10 31 14 C28 19 23 19.5 20 17Z" fill="#d9bf86"/></svg>';
+  $('#brandMascot').innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#e4ebd9"/><path d="M20 30 V18" stroke="#3f5e4a" stroke-width="1.8" stroke-linecap="round"/><path d="M20 19 C15 12 10 13 9.5 17 C13 21 17 21 20 19Z" fill="#9bb97c"/><path d="M20 17 C24 9 30 10 31 14 C28 19 23 19.5 20 17Z" fill="#5e7d63"/><circle cx="27.5" cy="26" r="4" fill="#e2b65a"/></svg>';
   $('#sheetMascot').innerHTML = mascot('proud');
   render();
   if (state.conn.url) scheduleSync(0);
