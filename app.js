@@ -1,0 +1,960 @@
+/* Costee – sổ chi tiêu cá nhân. Không cần build: HTML + CSS + JS thuần. */
+(function () {
+  'use strict';
+
+  /* ================= Helpers ================= */
+  var $ = function (s, el) { return (el || document).querySelector(s); };
+  var $$ = function (s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem('costee.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem('costee.' + k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
+  };
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function uid() { return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseYmd(s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function today() { return ymd(new Date()); }
+  function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  var DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+  var DOW_LONG = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+
+  var nf = new Intl.NumberFormat('vi-VN');
+  function money(n) { return nf.format(Math.round(n || 0)) + '₫'; }
+  function compact(n) {
+    var a = Math.abs(n), s = n < 0 ? '-' : '';
+    if (a >= 1e9) return s + trim(a / 1e9) + ' tỷ';
+    if (a >= 1e6) return s + trim(a / 1e6) + 'tr';
+    if (a >= 1e3) return s + Math.round(a / 1e3) + 'k';
+    return s + Math.round(a);
+  }
+  function trim(x) { return (Math.round(x * 10) / 10).toString().replace('.', ','); }
+
+  /** "45" → 45.000 ; "45k" → 45.000 ; "1.2tr" / "1,2tr" / "1tr2" → 1.200.000 ; "150.000" → 150.000 */
+  function parseAmount(raw) {
+    var s = String(raw || '').toLowerCase().replace(/\s|₫|đ|vnd/g, '');
+    if (!s) return 0;
+    var m = s.match(/^(\d+)(tr|m|triệu)(\d{1,3})$/);
+    if (m) return +m[1] * 1e6 + +(m[3] + '00').slice(0, 3) * 1e3;
+    m = s.match(/^([\d.,]+)(k|n|nghìn|ngàn|tr|m|triệu|tỷ|ty|b)?$/);
+    if (!m) return 0;
+    var numStr = m[1], unit = m[2] || '';
+    var num;
+    if (unit) {
+      num = parseFloat(numStr.replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.'));
+    } else if (/^\d{1,3}([.,]\d{3})+$/.test(numStr)) {
+      num = +numStr.replace(/[.,]/g, '');
+    } else {
+      num = parseFloat(numStr.replace(',', '.'));
+    }
+    if (!isFinite(num)) return 0;
+    if (/^(k|n|nghìn|ngàn)$/.test(unit)) return Math.round(num * 1e3);
+    if (/^(tr|m|triệu)$/.test(unit)) return Math.round(num * 1e6);
+    if (/^(tỷ|ty|b)$/.test(unit)) return Math.round(num * 1e9);
+    // Không có đơn vị: số nhỏ hơn 1000 hiểu là nghìn đồng (gõ 45 = 45.000₫)
+    return num < 1000 ? Math.round(num * 1e3) : Math.round(num);
+  }
+
+  /* ================= Default data ================= */
+  var DEFAULT_CATEGORIES = [
+    { name: 'Tiền ăn', icon: '🍜' }, { name: 'Coffee', icon: '☕' }, { name: 'Quần áo', icon: '👗' },
+    { name: 'Skincare/Mỹ phẩm', icon: '💄' }, { name: 'Học thêm/Khoá học', icon: '📚' }, { name: 'Phòng trọ', icon: '🏠' },
+    { name: 'Mua quà', icon: '🎁' }, { name: 'Nuôi xe', icon: '🛵' }, { name: 'Mời ae/mọi người', icon: '🍻' },
+    { name: 'Trải nghiệm/Du lịch', icon: '✈️' }, { name: 'Sức khoẻ', icon: '💊' }, { name: 'Gửi về nhà', icon: '👨‍👩‍👧' },
+    { name: 'Thiết bị học tập/làm việc', icon: '💻' }, { name: 'Sports', icon: '🏸' }, { name: 'Tài khoản AI', icon: '🤖' },
+    { name: 'Đầu tư', icon: '📈' }, { name: 'Chi tiêu Lễ Tết', icon: '🧧' }, { name: 'Khác', icon: '📦' }
+  ];
+  var DEFAULT_SETTINGS = {
+    monthlyBudget: 9000000,
+    categories: DEFAULT_CATEGORIES,
+    budgets: [
+      { id: 'b1', name: 'Ăn uống', limit: 2500000, cats: ['Tiền ăn'] },
+      { id: 'b2', name: 'Coffee học bài', limit: 700000, cats: ['Coffee'] },
+      { id: 'b3', name: 'Học', limit: 1000000, cats: ['Học thêm/Khoá học', 'Thiết bị học tập/làm việc'] },
+      { id: 'b4', name: 'Sports', limit: 500000, cats: ['Sports'] },
+      { id: 'b5', name: 'Trải nghiệm', limit: 500000, cats: ['Trải nghiệm/Du lịch'] },
+      { id: 'b6', name: 'Quần áo & mỹ phẩm', limit: 500000, cats: ['Quần áo', 'Skincare/Mỹ phẩm'] },
+      { id: 'b7', name: 'Phòng trọ', limit: 3200000, cats: ['Phòng trọ'] }
+    ],
+    // Hạng mục không tính vào "chi tiêu sinh hoạt" khi tính tiền được chi mỗi ngày
+    excludeFromDaily: ['Phòng trọ', 'Đầu tư', 'Gửi về nhà'],
+    updatedAt: 0
+  };
+
+  /* ================= State ================= */
+  var state = {
+    tx: store.get('tx', []),
+    settings: Object.assign({}, DEFAULT_SETTINGS, store.get('settings', {})),
+    queue: store.get('queue', []),
+    conn: store.get('conn', { url: '', token: '' }),
+    lastSync: store.get('lastSync', 0),
+    syncError: '',
+    syncing: false,
+    view: store.get('view', 'today'),
+    report: { period: 'month', offset: 0 },
+    hist: { q: '', cat: '', type: '', limit: 40 },
+    editing: null
+  };
+
+  function save() {
+    store.set('tx', state.tx);
+    store.set('settings', state.settings);
+    store.set('queue', state.queue);
+    store.set('lastSync', state.lastSync);
+  }
+
+  function catIcon(name) {
+    var c = state.settings.categories.filter(function (x) { return x.name === name; })[0];
+    return c ? c.icon : '📦';
+  }
+
+  /* ================= Data mutations (offline-first) ================= */
+  function applyOp(list, op) {
+    if (op.op === 'upsert') {
+      var i = list.findIndex(function (t) { return t.id === op.tx.id; });
+      if (i >= 0) list[i] = op.tx; else list.push(op.tx);
+    } else if (op.op === 'delete') {
+      return list.filter(function (t) { return t.id !== op.id; });
+    }
+    return list;
+  }
+  function commit(op) {
+    if (op.op === 'settings') state.settings = op.settings;
+    else state.tx = applyOp(state.tx, op);
+    if (state.conn.url) {
+      // gộp các thao tác trùng id để hàng đợi gọn
+      if (op.op !== 'settings') state.queue = state.queue.filter(function (q) { return (q.tx ? q.tx.id : q.id) !== (op.tx ? op.tx.id : op.id) || q.op === 'settings'; });
+      else state.queue = state.queue.filter(function (q) { return q.op !== 'settings'; });
+      state.queue.push(op);
+    }
+    save();
+    render();
+    scheduleSync();
+  }
+  function upsertTx(t) { t.updatedAt = Date.now(); if (!t.createdAt) t.createdAt = t.updatedAt; commit({ op: 'upsert', tx: t }); }
+  function deleteTx(id) { commit({ op: 'delete', id: id }); }
+  function saveSettings(s) { s.updatedAt = Date.now(); commit({ op: 'settings', settings: s }); }
+
+  /* ================= Sync with Google Apps Script ================= */
+  function api(body, conn) {
+    conn = conn || state.conn;
+    var payload = Object.assign({}, body, { token: conn.token });
+    // text/plain để tránh preflight CORS với Apps Script
+    return fetch(conn.url, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Lỗi mạng ' + r.status);
+        return r.text();
+      })
+      .then(function (txt) {
+        var j;
+        try { j = JSON.parse(txt); } catch (e) { throw new Error('Phản hồi không hợp lệ – kiểm tra lại URL ứng dụng web và quyền truy cập "Bất kỳ ai".'); }
+        if (!j.ok) throw new Error(j.error || 'Lỗi không rõ');
+        return j;
+      });
+  }
+
+  var syncTimer = null;
+  function scheduleSync(delay) {
+    if (!state.conn.url) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(sync, delay == null ? 600 : delay);
+  }
+
+  function sync() {
+    if (!state.conn.url || state.syncing) return Promise.resolve();
+    if (!navigator.onLine) { state.offline = true; state.syncError = 'Không có mạng – sẽ tự gửi khi có mạng'; renderSync(); return Promise.resolve(); }
+    state.syncing = true; state.syncError = ''; state.offline = false; renderSync();
+    var ops = state.queue.slice();
+    return api({ action: 'sync', ops: ops })
+      .then(function (j) {
+        var failed = (j.results || []).filter(function (r) { return !r.ok; });
+        state.queue = state.queue.slice(ops.length);
+        var tx = j.tx || [];
+        state.queue.forEach(function (op) { if (op.op !== 'settings') tx = applyOp(tx, op); });
+        state.tx = tx;
+        var hasPendingSettings = state.queue.some(function (q) { return q.op === 'settings'; });
+        if (j.settings && !hasPendingSettings) {
+          state.settings = Object.assign({}, DEFAULT_SETTINGS, j.settings);
+        } else if (!j.settings && !hasPendingSettings) {
+          // Sheet chưa có cài đặt → đẩy cài đặt trên máy lên
+          state.queue.push({ op: 'settings', settings: state.settings });
+          scheduleSync(100);
+        }
+        state.lastSync = Date.now();
+        if (failed.length) state.syncError = failed.length + ' thao tác bị lỗi: ' + failed[0].error;
+      })
+      .catch(function (e) {
+        // Lỗi mạng (offline, mất sóng) → không coi là lỗi, giữ hàng đợi để gửi sau
+        state.syncError = e instanceof TypeError ? 'Không có mạng – sẽ tự gửi khi có mạng' : e.message;
+        state.offline = e instanceof TypeError;
+      })
+      .then(function () { state.syncing = false; save(); render(); });
+  }
+
+  function renderSync() {
+    var dot = $('#syncDot'), txt = $('#syncText');
+    dot.className = 'dot';
+    if (!state.conn.url) { txt.textContent = 'Trên máy'; return; }
+    if (state.syncing) { dot.classList.add('busy'); txt.textContent = 'Đang đồng bộ'; return; }
+    if (state.offline) { dot.classList.add('pending'); txt.textContent = 'Offline' + (state.queue.length ? ' · ' + state.queue.length + ' chờ gửi' : ''); return; }
+    if (state.syncError) { dot.classList.add('err'); txt.textContent = 'Lỗi đồng bộ'; return; }
+    if (state.queue.length) { dot.classList.add('pending'); txt.textContent = state.queue.length + ' chờ gửi'; return; }
+    dot.classList.add('ok'); txt.textContent = 'Đã đồng bộ';
+  }
+
+  /* ================= Calculations ================= */
+  function expenses(from, to) { // from/to: 'yyyy-mm-dd' inclusive
+    return state.tx.filter(function (t) { return t.type !== 'saved' && t.date >= from && t.date <= to; });
+  }
+  function savedIn(from, to) {
+    return state.tx.filter(function (t) { return t.type === 'saved' && t.date >= from && t.date <= to; });
+  }
+  function sum(list) { return list.reduce(function (a, t) { return a + (+t.amount || 0); }, 0); }
+  function monthRange(y, m) { return [ymd(new Date(y, m, 1)), ymd(new Date(y, m, daysInMonth(y, m)))]; }
+  function byCategory(list) {
+    var map = {};
+    list.forEach(function (t) { map[t.category] = (map[t.category] || 0) + (+t.amount || 0); });
+    return Object.keys(map).map(function (k) { return { name: k, total: map[k] }; }).sort(function (a, b) { return b.total - a.total; });
+  }
+  function budgetStatus(spent, limit) {
+    if (!limit) return 'ok';
+    var r = spent / limit;
+    return r > 1 ? 'over' : r >= 0.85 ? 'warn' : 'ok';
+  }
+  function statusLabel(st) { return st === 'over' ? '✕ Vượt' : st === 'warn' ? '⚠ Sắp hết' : '✓ Ổn'; }
+
+  /** Tình hình tháng hiện tại + tiền có thể chi mỗi ngày (giống công thức "Còn lại / số ngày" trong sheet cũ). */
+  function monthSnapshot() {
+    var now = new Date(), y = now.getFullYear(), m = now.getMonth();
+    var r = monthRange(y, m), t = today();
+    var dim = daysInMonth(y, m), day = now.getDate();
+    var monthTx = expenses(r[0], r[1]);
+    var spent = sum(monthTx);
+    var exclude = state.settings.excludeFromDaily || [];
+    var isDaily = function (x) { return exclude.indexOf(x.category) < 0; };
+    var budget = +state.settings.monthlyBudget || 0;
+    var spentBeforeToday = sum(monthTx.filter(function (x) { return x.date < t; }));
+    var todayTx = monthTx.filter(function (x) { return x.date === t; });
+    var spentToday = sum(todayTx);
+    var dailyToday = sum(todayTx.filter(isDaily));
+    // Ngân sách sinh hoạt hằng ngày = ngân sách tháng trừ các khoản cố định đã có (phòng trọ...) hoặc hạn mức của chúng
+    var fixedLimit = 0;
+    (state.settings.budgets || []).forEach(function (b) {
+      var allFixed = b.cats.length && b.cats.every(function (c) { return exclude.indexOf(c) >= 0; });
+      if (allFixed) fixedLimit += +b.limit || 0;
+    });
+    var fixedSpent = sum(monthTx.filter(function (x) { return !isDaily(x); }));
+    var fixedReserve = Math.max(fixedLimit, fixedSpent);
+    var dailyBefore = sum(monthTx.filter(function (x) { return x.date < t && isDaily(x); }));
+    var daysLeft = dim - day + 1;
+    var allowance = budget ? Math.max(0, (budget - fixedReserve - dailyBefore) / daysLeft) : 0;
+    // Dự báo cuối tháng: chỉ ngoại suy các khoản sinh hoạt nhỏ (≤ 1tr); khoản lớn một lần cộng nguyên
+    var dailyAll = monthTx.filter(isDaily);
+    var oneOff = sum(dailyAll.filter(function (x) { return x.amount > 1000000; }));
+    var routine = sum(dailyAll.filter(function (x) { return x.amount <= 1000000; }));
+    var projected = fixedReserve + oneOff + (day > 0 ? routine / day * dim : 0);
+    return {
+      y: y, m: m, from: r[0], to: r[1], dim: dim, day: day, daysLeft: daysLeft,
+      spent: spent, budget: budget, spentToday: spentToday, dailyToday: dailyToday, todayTx: todayTx,
+      spentBeforeToday: spentBeforeToday, allowance: allowance, projected: projected,
+      remaining: budget - spent, monthTx: monthTx, saved: sum(savedIn(r[0], r[1]))
+    };
+  }
+
+  function budgetRows(list) {
+    return (state.settings.budgets || []).map(function (b) {
+      var spent = sum(list.filter(function (t) { return b.cats.indexOf(t.category) >= 0; }));
+      return { b: b, spent: spent, st: budgetStatus(spent, +b.limit) };
+    });
+  }
+
+  /* ================= Rendering ================= */
+  function render() {
+    renderSync();
+    var now = new Date();
+    $('#todayLabel').textContent = DOW_LONG[now.getDay()] + ', ' + pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear();
+    $$('.tabbar [data-view]').forEach(function (b) { b.classList.toggle('active', b.dataset.view === state.view); });
+    var html = ({ today: viewToday, report: viewReport, history: viewHistory, settings: viewSettings })[state.view]();
+    var v = $('#view');
+    var keepFocus = document.activeElement && document.activeElement.id && v.contains(document.activeElement) ? document.activeElement.id : null;
+    var selStart = keepFocus && document.activeElement.selectionStart;
+    v.innerHTML = html;
+    if (keepFocus && $('#' + keepFocus)) {
+      var el = $('#' + keepFocus); el.focus();
+      try { if (selStart != null) el.setSelectionRange(selStart, selStart); } catch (e) { /* ignore */ }
+    }
+  }
+
+  function txItem(t, showDate) {
+    var d = parseYmd(t.date);
+    var sub = (showDate ? DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + ' · ' : '') + esc(t.category);
+    return '<li><button type="button" class="tx" data-edit="' + esc(t.id) + '">' +
+      '<span class="ic">' + catIcon(t.category) + '</span>' +
+      '<span class="mid"><span class="t1">' + esc(t.note || t.category) + '</span><span class="t2">' + sub + (t.type === 'saved' ? ' · 💪 nhịn được' : '') + '</span></span>' +
+      '<span class="amt num' + (t.type === 'saved' ? ' saved' : '') + '">' + (t.type === 'saved' ? '+' : '−') + money(t.amount) + '</span>' +
+      '</button></li>';
+  }
+
+  function progress(value, max, st) {
+    var pct = max ? Math.min(100, value / max * 100) : 0;
+    return '<div class="progress ' + (st || '') + '" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(pct) + '"><span style="width:' + pct.toFixed(1) + '%"></span></div>';
+  }
+
+  function viewToday() {
+    var s = monthSnapshot();
+    var html = '';
+    var todayLeft = s.allowance - s.dailyToday;
+    var tSt = s.allowance ? budgetStatus(s.dailyToday, s.allowance) : (s.dailyToday > 0 ? 'over' : 'warn');
+    html += '<section class="card hero">' +
+      '<div class="label">Hôm nay đã chi</div>' +
+      '<div class="big num">' + money(s.spentToday) + '</div>' +
+      (s.budget ? progress(s.dailyToday, s.allowance, tSt) +
+        '<div class="budget-sub"><span>' + (todayLeft >= 0 ? 'Còn được chi hôm nay: <b class="num">' + money(todayLeft) + '</b>' : 'Vượt mức hôm nay: <b class="num">' + money(-todayLeft) + '</b>') + '</span>' +
+        '<span class="status ' + tSt + '">' + statusLabel(tSt) + '</span></div>' +
+        (s.allowance ? '<div class="help">Mức chi mỗi ngày: <b class="num">' + money(s.allowance) + '</b> (= tiền sinh hoạt còn lại ÷ ' + s.daysLeft + ' ngày còn lại)</div>'
+          : '<div class="help">⚠ Đã dùng hết ngân sách sinh hoạt của tháng này – mọi khoản chi thêm đều là vượt.</div>') : '') +
+      '</section>';
+
+    var mSt = budgetStatus(s.spent, s.budget);
+    html += '<section class="card"><div class="card-head"><h3>Tháng ' + (s.m + 1) + '/' + s.y + '</h3>' +
+      (s.budget ? '<span class="status ' + mSt + '">' + statusLabel(mSt) + '</span>' : '') + '</div>' +
+      '<div class="stat-row">' +
+      '<div class="stat"><div class="k">Đã chi</div><div class="v num">' + money(s.spent) + '</div><div class="s">' + (s.budget ? Math.round(s.spent / s.budget * 100) + '% ngân sách' : 'Chưa đặt ngân sách') + '</div></div>' +
+      '<div class="stat"><div class="k">' + (s.remaining >= 0 ? 'Còn lại' : 'Vượt') + '</div><div class="v num">' + money(Math.abs(s.remaining)) + '</div><div class="s">' + s.daysLeft + ' ngày nữa hết tháng</div></div>' +
+      '</div>' + (s.budget ? progress(s.spent, s.budget, mSt) : '') +
+      (s.saved ? '<div class="help">💪 Đã nhịn được <b class="num">' + money(s.saved) + '</b> tháng này</div>' : '') +
+      '</section>';
+
+    if (s.budget && s.day >= 3 && s.projected > s.budget * 1.02) {
+      html += '<div class="alert over" role="note"><span>⚠️</span><span>Với tốc độ hiện tại, cuối tháng bạn sẽ chi khoảng <b class="num">' + money(s.projected) +
+        '</b> – vượt ngân sách <b class="num">' + money(s.projected - s.budget) + '</b>.' + (s.allowance ? ' Hãy giữ mức ≤ <b class="num">' + money(s.allowance) + '</b>/ngày.' : '') + '</span></div>';
+    }
+
+    var rows = budgetRows(s.monthTx);
+    if (rows.length) {
+      html += '<section class="card"><div class="card-head"><h3>Hạn mức tháng này</h3><button class="link" data-go="settings" data-anchor="budgets">Sửa</button></div>';
+      rows.forEach(function (r) {
+        var left = (+r.b.limit) - r.spent;
+        html += '<div class="budget-item"><div class="budget-top"><span class="name">' + esc(r.b.name) + '</span><span class="num">' + compact(r.spent) + ' / ' + compact(+r.b.limit) + '</span></div>' +
+          progress(r.spent, +r.b.limit, r.st) +
+          '<div class="budget-sub"><span>' + (left >= 0 ? 'Còn ' + money(left) : 'Vượt ' + money(-left)) + '</span><span class="status ' + r.st + '">' + statusLabel(r.st) + '</span></div></div>';
+      });
+      html += '</section>';
+    }
+
+    var todayList = state.tx.filter(function (t) { return t.date === today(); }).sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    html += '<section class="card"><div class="card-head"><h3>Khoản chi hôm nay</h3>' + (todayList.length ? '<span class="subtitle">' + todayList.length + ' khoản</span>' : '') + '</div>';
+    if (todayList.length) html += '<ul class="tx-list">' + todayList.map(function (t) { return txItem(t, false); }).join('') + '</ul>';
+    else html += '<div class="empty"><span class="e-ic">🌱</span>Chưa có khoản chi nào hôm nay.<br>Bấm <b>+</b> để ghi lại.</div>';
+    html += '</section>';
+
+    if (!state.tx.length) {
+      html += '<section class="card"><h3>Bắt đầu</h3><p class="help">Kết nối Google Sheet của bạn ở <b>Cài đặt</b> để nhập toàn bộ dữ liệu cũ và lưu mọi khoản chi vào sheet. Hoặc thử app với dữ liệu mẫu.</p>' +
+        '<div class="btn-row"><button class="btn primary" data-go="settings">Kết nối Google Sheet</button><button class="btn" id="demoBtn">Dùng thử dữ liệu mẫu</button></div></section>';
+    }
+    return html;
+  }
+
+  /* ---------- Report ---------- */
+  function periodRange(period, offset) {
+    var now = new Date();
+    if (period === 'week') {
+      var dow = (now.getDay() + 6) % 7; // thứ 2 = 0
+      var start = addDays(now, -dow + offset * 7);
+      var end = addDays(start, 6);
+      return { from: ymd(start), to: ymd(end), label: pad(start.getDate()) + '/' + pad(start.getMonth() + 1) + ' – ' + pad(end.getDate()) + '/' + pad(end.getMonth() + 1), days: 7, start: start };
+    }
+    if (period === 'year') {
+      var y = now.getFullYear() + offset;
+      return { from: y + '-01-01', to: y + '-12-31', label: 'Năm ' + y, year: y };
+    }
+    var d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    var r = monthRange(d.getFullYear(), d.getMonth());
+    return { from: r[0], to: r[1], label: 'Tháng ' + (d.getMonth() + 1) + '/' + d.getFullYear(), days: daysInMonth(d.getFullYear(), d.getMonth()), start: d, y: d.getFullYear(), m: d.getMonth() };
+  }
+
+  function deltaHtml(cur, prev, label) {
+    if (!prev) return '<span class="delta flat">Chưa có dữ liệu ' + label + '</span>';
+    var p = (cur - prev) / prev * 100;
+    var cls = Math.abs(p) < 1 ? 'flat' : p > 0 ? 'up' : 'down';
+    return '<span class="delta ' + cls + '">' + (p > 0 ? '▲ ' : p < 0 ? '▼ ' : '') + Math.abs(Math.round(p)) + '% so với ' + label + '</span>';
+  }
+
+  /** Biểu đồ cột 1 chuỗi (SVG). points: [{label, value, tip, hl}] */
+  function barChart(points, opts) {
+    opts = opts || {};
+    var W = 340, H = 170, padL = 34, padB = 22, padT = 14, padR = 4;
+    var maxV = Math.max.apply(null, points.map(function (p) { return p.value; }).concat([opts.ref || 0, 1]));
+    var nice = niceMax(maxV);
+    var iw = W - padL - padR, ih = H - padT - padB;
+    var bw = iw / points.length;
+    var barW = Math.max(2, Math.min(28, bw - 2));
+    var svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opts.title || 'Biểu đồ') + '">';
+    [0, 0.5, 1].forEach(function (f) {
+      var yy = padT + ih - ih * f;
+      svg += '<line class="grid" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yy + '" y2="' + yy + '"/>';
+      svg += '<text class="axis" x="' + (padL - 4) + '" y="' + (yy + 3) + '" text-anchor="end">' + compact(nice * f) + '</text>';
+    });
+    var every = Math.ceil(points.length / 8);
+    points.forEach(function (p, i) {
+      var h = p.value / nice * ih;
+      var x = padL + i * bw + (bw - barW) / 2;
+      var y = padT + ih - h;
+      var r = Math.min(4, barW / 2, h);
+      svg += '<g' + (p.hl ? ' class="on"' : '') + '>';
+      svg += '<rect class="hit" tabindex="0" data-tip="' + esc(p.tip) + '" x="' + (padL + i * bw) + '" y="' + padT + '" width="' + bw + '" height="' + ih + '"/>';
+      if (h > 0) svg += '<path class="bar' + (p.dim ? ' dim' : '') + '" d="' + roundTop(x, y, barW, h, r) + '"/>';
+      svg += '</g>';
+      if (i % every === 0 || i === points.length - 1 && points.length <= 12) {
+        svg += '<text class="axis" x="' + (padL + i * bw + bw / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(p.label) + '</text>';
+      }
+    });
+    if (opts.ref) {
+      var ry = padT + ih - opts.ref / nice * ih;
+      svg += '<line class="ref" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + ry + '" y2="' + ry + '"/>';
+    }
+    return svg + '</svg>';
+  }
+  function roundTop(x, y, w, h, r) {
+    return 'M' + x + ',' + (y + h) + 'V' + (y + r) + 'Q' + x + ',' + y + ' ' + (x + r) + ',' + y + 'H' + (x + w - r) + 'Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) + 'V' + (y + h) + 'Z';
+  }
+  function niceMax(v) {
+    var p = Math.pow(10, Math.floor(Math.log10(v)));
+    var steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    for (var i = 0; i < steps.length; i++) if (steps[i] * p >= v) return steps[i] * p;
+    return 10 * p;
+  }
+
+  function viewReport() {
+    var R = state.report;
+    var cur = periodRange(R.period, R.offset), prev = periodRange(R.period, R.offset - 1);
+    var list = expenses(cur.from, cur.to), prevList = expenses(prev.from, prev.to);
+    var total = sum(list), prevTotal = sum(prevList);
+    var saved = sum(savedIn(cur.from, cur.to));
+    var t = today();
+    var html = '<div class="toolbar"><div class="pills" role="tablist">' +
+      [['week', 'Tuần'], ['month', 'Tháng'], ['year', 'Năm']].map(function (p) {
+        return '<button role="tab" data-period="' + p[0] + '" class="' + (R.period === p[0] ? 'on' : '') + '" aria-selected="' + (R.period === p[0]) + '">' + p[1] + '</button>';
+      }).join('') + '</div>' +
+      '<div class="period-nav"><button class="icon-btn" data-shift="-1" aria-label="Kỳ trước">‹</button><span class="lbl">' + esc(cur.label) + '</span>' +
+      '<button class="icon-btn" data-shift="1" aria-label="Kỳ sau"' + (R.offset >= 0 ? ' disabled' : '') + '>›</button></div></div>';
+
+    // Số ngày đã trôi qua trong kỳ (để tính trung bình)
+    var elapsed;
+    if (R.period === 'year') {
+      var ys = new Date(cur.year, 0, 1), ye = cur.to < t ? new Date(cur.year, 11, 31) : new Date();
+      elapsed = Math.max(1, Math.round((ye - ys) / 864e5) + 1);
+    } else {
+      elapsed = cur.to < t ? cur.days : Math.max(1, Math.round((parseYmd(t) - parseYmd(cur.from)) / 864e5) + 1);
+    }
+    var prevLabel = R.period === 'week' ? 'tuần trước' : R.period === 'month' ? 'tháng trước' : 'năm trước';
+    // So sánh công bằng: kỳ đang chạy so với cùng số ngày của kỳ trước
+    var prevComparable = prevTotal;
+    if (cur.to >= t && R.period !== 'year') {
+      var cutoff = ymd(addDays(parseYmd(prev.from), elapsed - 1));
+      prevComparable = sum(prevList.filter(function (x) { return x.date <= cutoff; }));
+      prevLabel += ' (cùng ' + elapsed + ' ngày đầu)';
+    }
+    html += '<section class="card hero"><div class="label">Tổng chi ' + esc(cur.label.toLowerCase()) + '</div><div class="big num">' + money(total) + '</div>' +
+      deltaHtml(total, prevComparable, prevLabel) +
+      '<div class="stat-row" style="margin-top:12px">' +
+      '<div class="stat"><div class="k">Trung bình / ngày</div><div class="v num">' + money(total / elapsed) + '</div><div class="s">' + elapsed + ' ngày</div></div>' +
+      '<div class="stat"><div class="k">Số khoản chi</div><div class="v num">' + list.length + '</div><div class="s">TB ' + money(list.length ? total / list.length : 0) + '/khoản</div></div>' +
+      (R.period === 'month' && state.settings.monthlyBudget ? '<div class="stat"><div class="k">Ngân sách</div><div class="v num">' + money(+state.settings.monthlyBudget) + '</div><div class="s">' + (total <= state.settings.monthlyBudget ? 'Còn ' + money(state.settings.monthlyBudget - total) : 'Vượt ' + money(total - state.settings.monthlyBudget)) + '</div></div>' : '') +
+      '<div class="stat"><div class="k">💪 Nhịn được</div><div class="v num">' + money(saved) + '</div><div class="s">' + savedIn(cur.from, cur.to).length + ' lần</div></div>' +
+      '</div></section>';
+
+    // Biểu đồ
+    var points = [], tableRows = [];
+    if (R.period === 'year') {
+      for (var mm = 0; mm < 12; mm++) {
+        var mr = monthRange(cur.year, mm);
+        var v = sum(list.filter(function (x) { return x.date >= mr[0] && x.date <= mr[1]; }));
+        points.push({ label: 'T' + (mm + 1), value: v, tip: 'Tháng ' + (mm + 1) + '|' + money(v), dim: mr[0] > t });
+        tableRows.push(['Tháng ' + (mm + 1), v]);
+      }
+    } else {
+      for (var i = 0; i < cur.days; i++) {
+        var d = addDays(cur.start, i), ds = ymd(d);
+        var dv = sum(list.filter(function (x) { return x.date === ds; }));
+        var lbl = R.period === 'week' ? DOW[d.getDay()] : String(d.getDate());
+        points.push({ label: lbl, value: dv, tip: DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '|' + money(dv), dim: ds > t, hl: ds === t });
+        tableRows.push([DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1), dv]);
+      }
+    }
+    var ref = 0, refLabel = '';
+    if (state.settings.monthlyBudget) {
+      if (R.period === 'year') { ref = +state.settings.monthlyBudget; refLabel = 'Ngân sách/tháng'; }
+      else { ref = state.settings.monthlyBudget / (R.period === 'month' ? cur.days : daysInMonth(cur.start.getFullYear(), cur.start.getMonth())); refLabel = 'Mức TB/ngày ' + compact(ref); }
+    }
+    html += '<section class="card"><h3>' + (R.period === 'year' ? 'Chi theo tháng' : 'Chi theo ngày') + '</h3>' +
+      barChart(points, { ref: ref, refLabel: refLabel, title: 'Chi tiêu ' + cur.label }) +
+      '<div class="chart-caption"><span class="key"><i></i>Số tiền chi</span>' + (ref ? '<span class="key"><i class="line"></i>' + esc(refLabel) + '</span>' : '') + '<span>Chạm vào cột để xem số</span></div>' +
+      '<details class="table-view"><summary>Xem dạng bảng</summary><table class="mini-table"><tbody>' +
+      tableRows.filter(function (r) { return r[1]; }).map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td class="num">' + money(r[1]) + '</td></tr>'; }).join('') +
+      '</tbody></table></details></section>';
+
+    // Theo hạng mục
+    var cats = byCategory(list), prevCats = {};
+    byCategory(prevList).forEach(function (c) { prevCats[c.name] = c.total; });
+    html += '<section class="card"><h3>Theo hạng mục</h3>';
+    if (!cats.length) html += '<div class="empty">Không có khoản chi nào trong kỳ này.</div>';
+    var top = cats.length ? cats[0].total : 1;
+    cats.forEach(function (c) {
+      var pct = total ? c.total / total * 100 : 0;
+      var pv = prevCats[c.name] || 0;
+      var ch = pv ? Math.round((c.total - pv) / pv * 100) : null;
+      html += '<div class="cat-row"><span class="ic">' + catIcon(c.name) + '</span><span class="nm">' + esc(c.name) + '</span><span class="val num">' + money(c.total) + '</span>' +
+        '<span></span><span class="bar-track"><span style="width:' + (c.total / top * 100).toFixed(1) + '%"></span></span>' +
+        '<span class="meta num">' + Math.round(pct) + '%' + (ch !== null && cur.to < t ? ' · <span class="delta ' + (ch > 0 ? 'up' : ch < 0 ? 'down' : 'flat') + '">' + (ch > 0 ? '▲' : ch < 0 ? '▼' : '') + Math.abs(ch) + '%</span>' : '') + '</span></div>';
+    });
+    html += '</section>';
+
+    // Nhận xét
+    var ins = insights(list, prevList, cats, prevCats, cur, elapsed, total);
+    if (ins.length) {
+      html += '<section class="card"><h3>Nhận xét</h3><ul class="insights">' + ins.map(function (x) {
+        return '<li><span class="i-ic">' + x[0] + '</span><span>' + x[1] + '</span></li>';
+      }).join('') + '</ul></section>';
+    }
+
+    // Top khoản lớn
+    var big = list.slice().sort(function (a, b) { return b.amount - a.amount; }).slice(0, 5);
+    if (big.length) html += '<section class="card"><h3>5 khoản chi lớn nhất</h3><ul class="tx-list">' + big.map(function (x) { return txItem(x, true); }).join('') + '</ul></section>';
+
+    // Xu hướng 12 tháng
+    if (R.period === 'month') {
+      var trend = [];
+      for (var k = 11; k >= 0; k--) {
+        var pr = periodRange('month', R.offset - k);
+        var tv = sum(expenses(pr.from, pr.to));
+        trend.push({ label: 'T' + (pr.m + 1), value: tv, tip: pr.label + '|' + money(tv), hl: k === 0 });
+      }
+      var avg = sum(trend.map(function (p) { return { amount: p.value }; })) / trend.filter(function (p) { return p.value; }).length || 0;
+      html += '<section class="card"><h3>Xu hướng 12 tháng</h3>' + barChart(trend, { ref: +state.settings.monthlyBudget, refLabel: 'Ngân sách', title: 'Xu hướng 12 tháng' }) +
+        '<div class="chart-caption"><span class="key"><i></i>Tổng chi tháng</span>' + (state.settings.monthlyBudget ? '<span class="key"><i class="line"></i>Ngân sách ' + compact(+state.settings.monthlyBudget) + '</span>' : '') + '<span>TB: ' + money(avg) + '/tháng</span></div></section>';
+    }
+    return html;
+  }
+
+  function insights(list, prevList, cats, prevCats, cur, elapsed, total) {
+    var out = [];
+    if (!list.length) return out;
+    if (cats[0] && total) out.push(['🥇', '<b>' + esc(cats[0].name) + '</b> chiếm nhiều nhất: <b class="num">' + Math.round(cats[0].total / total * 100) + '%</b> tổng chi (' + money(cats[0].total) + ').']);
+    var t = today();
+    if (cur.to < t && prevList.length) {
+      var incr = cats.map(function (c) { return { name: c.name, diff: c.total - (prevCats[c.name] || 0) }; }).sort(function (a, b) { return b.diff - a.diff; });
+      if (incr[0] && incr[0].diff > 0) out.push(['📈', '<b>' + esc(incr[0].name) + '</b> tăng mạnh nhất so với kỳ trước: <b class="num">+' + money(incr[0].diff) + '</b>.']);
+      var dec = incr[incr.length - 1];
+      if (dec && dec.diff < 0) out.push(['📉', '<b>' + esc(dec.name) + '</b> giảm nhiều nhất: <b class="num">' + money(dec.diff) + '</b>. Tốt lắm!']);
+    }
+    // Ngày trong tuần chi nhiều nhất
+    var dowSum = [0, 0, 0, 0, 0, 0, 0];
+    list.forEach(function (x) { dowSum[parseYmd(x.date).getDay()] += +x.amount; });
+    var maxD = dowSum.indexOf(Math.max.apply(null, dowSum));
+    if (list.length > 5) out.push(['📅', 'Bạn hay chi nhiều nhất vào <b>' + DOW_LONG[maxD] + '</b>.']);
+    // Ngày không chi
+    var spentDays = {};
+    list.forEach(function (x) { spentDays[x.date] = 1; });
+    var noSpend = elapsed - Object.keys(spentDays).length;
+    if (noSpend > 0) out.push(['🌿', '<b>' + noSpend + ' ngày</b> không chi đồng nào.']);
+    // Coffee/ăn vặt nhỏ lẻ
+    var small = list.filter(function (x) { return x.amount <= 50000; });
+    if (small.length >= 10) out.push(['☕', '<b>' + small.length + '</b> khoản nhỏ (≤50k) cộng lại thành <b class="num">' + money(sum(small)) + '</b> – các khoản nhỏ cũng đáng để ý.']);
+    return out;
+  }
+
+  /* ---------- History ---------- */
+  function viewHistory() {
+    var H = state.hist;
+    var q = H.q.trim().toLowerCase();
+    var list = state.tx.filter(function (t) {
+      if (H.cat && t.category !== H.cat) return false;
+      if (H.type && t.type !== H.type) return false;
+      if (q && (t.note + ' ' + t.category + ' ' + t.amount).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (b.createdAt || 0) - (a.createdAt || 0); });
+    var catsUsed = {};
+    state.tx.forEach(function (t) { catsUsed[t.category] = 1; });
+    var catNames = state.settings.categories.map(function (c) { return c.name; });
+    Object.keys(catsUsed).forEach(function (c) { if (catNames.indexOf(c) < 0) catNames.push(c); });
+
+    var html = '<div class="filters"><input id="histQ" type="search" placeholder="Tìm ghi chú, hạng mục, số tiền…" value="' + esc(H.q) + '" aria-label="Tìm kiếm">' +
+      '<select id="histCat" aria-label="Lọc hạng mục"><option value="">Tất cả hạng mục</option>' +
+      catNames.map(function (c) { return '<option' + (H.cat === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="pills" role="tablist" style="margin-bottom:6px">' + [['', 'Tất cả'], ['expense', 'Chi tiêu'], ['saved', '💪 Nhịn được']].map(function (p) {
+        return '<button data-htype="' + p[0] + '" class="' + (H.type === p[0] ? 'on' : '') + '">' + p[1] + '</button>';
+      }).join('') + '</div>';
+    var totalExp = sum(list.filter(function (t) { return t.type !== 'saved'; }));
+    html += '<div class="help">' + list.length + ' khoản · tổng chi <b class="num">' + money(totalExp) + '</b></div>';
+    if (!list.length) return html + '<div class="card empty"><span class="e-ic">🔍</span>Không có khoản nào.</div>';
+    var shown = list.slice(0, H.limit);
+    var groups = [], cur = null;
+    shown.forEach(function (t) {
+      if (!cur || cur.date !== t.date) { cur = { date: t.date, items: [] }; groups.push(cur); }
+      cur.items.push(t);
+    });
+    groups.forEach(function (g) {
+      var d = parseYmd(g.date);
+      var dayTotal = sum(state.tx.filter(function (t) { return t.date === g.date && t.type !== 'saved'; }));
+      var name = g.date === today() ? 'Hôm nay' : g.date === ymd(addDays(new Date(), -1)) ? 'Hôm qua' : DOW_LONG[d.getDay()] + ', ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
+      html += '<div class="day-head"><span>' + name + '</span><span class="num">' + money(dayTotal) + '</span></div>' +
+        '<div class="card" style="margin-top:4px;padding:6px 14px"><ul class="tx-list">' + g.items.map(function (t) { return txItem(t, false); }).join('') + '</ul></div>';
+    });
+    if (list.length > H.limit) html += '<div class="btn-row" style="justify-content:center"><button class="btn" id="moreBtn">Xem thêm (' + (list.length - H.limit) + ')</button></div>';
+    return html;
+  }
+
+  /* ---------- Settings ---------- */
+  function viewSettings() {
+    var S = state.settings, C = state.conn;
+    var html = '<section class="card" id="conn"><h3>🔗 Kết nối Google Sheet</h3>' +
+      (C.url ? '<p class="help">Trạng thái: <b>' + (state.syncError ? '⚠ ' + esc(state.syncError) : state.lastSync ? '✓ Đồng bộ lúc ' + new Date(state.lastSync).toLocaleString('vi-VN') : 'Chưa đồng bộ') + '</b>' +
+        (state.queue.length ? ' · ' + state.queue.length + ' thay đổi chờ gửi' : '') + '</p>' :
+        '<div class="help">Dữ liệu đang chỉ lưu trên máy này. Kết nối để lưu vào Google Sheet và dùng trên nhiều thiết bị:<ol>' +
+        '<li>Mở Google Sheet → <b>Tiện ích mở rộng → Apps Script</b>.</li>' +
+        '<li>Xoá code mẫu, dán toàn bộ file <code>apps-script/Code.gs</code> (trong repo), bấm Lưu.</li>' +
+        '<li>Tải lại Google Sheet → menu <b>Costee → Khởi tạo</b> → chép <b>mã bí mật</b>.</li>' +
+        '<li>Trong Apps Script: <b>Triển khai → Tùy chọn triển khai mới → Ứng dụng web</b>, "Người có quyền truy cập": <b>Bất kỳ ai</b> → chép URL.</li>' +
+        '<li>Dán URL và mã vào đây → <b>Kết nối</b>.</li></ol></div>') +
+      '<label class="field"><span class="field-label">URL ứng dụng web</span><input id="connUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(C.url) + '"></label>' +
+      '<label class="field"><span class="field-label">Mã bí mật</span><input id="connToken" placeholder="16 ký tự" value="' + esc(C.token) + '"></label>' +
+      '<div class="btn-row"><button class="btn primary" id="connSave">' + (C.url ? 'Lưu & kiểm tra' : 'Kết nối') + '</button>' +
+      (C.url ? '<button class="btn" id="syncNow">Đồng bộ ngay</button><button class="btn" id="importOld">Nhập dữ liệu cũ từ tab "1. Chi tiêu"</button><button class="btn ghost danger" id="connRemove">Ngắt kết nối</button>' : '') +
+      '</div></section>';
+
+    html += '<section class="card"><h3>💰 Ngân sách tháng</h3><label class="field"><span class="field-label">Tổng được chi mỗi tháng</span>' +
+      '<input id="monthlyBudget" inputmode="decimal" value="' + nf.format(+S.monthlyBudget || 0) + '"></label>' +
+      '<p class="help">Gõ nhanh: 9tr, 9.000.000… App dùng số này để tính <b>mức được chi mỗi ngày</b>.</p>' +
+      '<div class="field-label">Khoản cố định (không tính vào mức chi mỗi ngày)</div><div class="check-grid">' +
+      S.categories.map(function (c) {
+        return '<label><input type="checkbox" data-excl="' + esc(c.name) + '"' + ((S.excludeFromDaily || []).indexOf(c.name) >= 0 ? ' checked' : '') + '> ' + c.icon + ' ' + esc(c.name) + '</label>';
+      }).join('') + '</div></section>';
+
+    html += '<section class="card" id="budgets"><div class="card-head"><h3>🎯 Hạn mức theo nhóm</h3><button class="link" id="addBudget">+ Thêm nhóm</button></div>' +
+      '<p class="help">Mỗi nhóm có thể gồm nhiều hạng mục (vd "Quần áo & mỹ phẩm"). App cảnh báo khi dùng ≥ 85%.</p>';
+    (S.budgets || []).forEach(function (b, i) {
+      html += '<div class="group-edit" data-bi="' + i + '"><div class="g-row">' +
+        '<input class="input" data-bf="name" value="' + esc(b.name) + '" aria-label="Tên nhóm">' +
+        '<input class="input num" data-bf="limit" inputmode="decimal" value="' + nf.format(+b.limit || 0) + '" aria-label="Hạn mức">' +
+        '<button class="icon-btn" data-bdel="' + i + '" aria-label="Xoá nhóm">✕</button></div>' +
+        '<details><summary>Hạng mục: ' + (b.cats.length ? esc(b.cats.join(', ')) : '<i>chưa chọn</i>') + '</summary><div class="check-grid">' +
+        S.categories.map(function (c) {
+          return '<label><input type="checkbox" data-bcat="' + esc(c.name) + '"' + (b.cats.indexOf(c.name) >= 0 ? ' checked' : '') + '> ' + c.icon + ' ' + esc(c.name) + '</label>';
+        }).join('') + '</div></details></div>';
+    });
+    html += '</section>';
+
+    html += '<section class="card"><div class="card-head"><h3>🗂 Hạng mục</h3><button class="link" id="addCat">+ Thêm</button></div>';
+    S.categories.forEach(function (c, i) {
+      html += '<div class="cat-edit" data-ci="' + i + '"><input class="input emoji" data-cf="icon" value="' + esc(c.icon) + '" aria-label="Biểu tượng" maxlength="4">' +
+        '<input class="input" data-cf="name" value="' + esc(c.name) + '" aria-label="Tên hạng mục">' +
+        '<button class="icon-btn" data-cdel="' + i + '" aria-label="Xoá">✕</button></div>';
+    });
+    html += '<p class="help">Đổi tên hạng mục sẽ đổi luôn các khoản chi cũ thuộc hạng mục đó.</p></section>';
+
+    html += '<section class="card"><h3>📦 Dữ liệu</h3><p class="help">' + state.tx.length + ' khoản trên máy này.</p><div class="btn-row">' +
+      '<button class="btn" id="exportCsv">Tải về CSV</button>' +
+      (!state.conn.url ? '<button class="btn" id="demoBtn">Nạp dữ liệu mẫu</button>' : '') +
+      '<button class="btn ghost danger" id="wipeLocal">Xoá dữ liệu trên máy này</button></div>' +
+      '<p class="help">Mẹo: trên iPhone bấm <b>Chia sẻ → Thêm vào MH chính</b>, trên Android bấm <b>⋮ → Cài đặt ứng dụng</b> để dùng như app thật.</p></section>';
+    return html;
+  }
+
+  /* ================= Add / edit sheet ================= */
+  var form = { type: 'expense', category: 'Tiền ăn' };
+
+  function catOrder() {
+    var since = ymd(addDays(new Date(), -60)), freq = {};
+    state.tx.forEach(function (t) { if (t.date >= since) freq[t.category] = (freq[t.category] || 0) + 1; });
+    var base = state.settings.categories.slice();
+    return base.map(function (c, i) { return { c: c, f: freq[c.name] || 0, i: i }; })
+      .sort(function (a, b) { return b.f - a.f || a.i - b.i; }).map(function (x) { return x.c; });
+  }
+
+  function openSheet(tx) {
+    state.editing = tx ? tx.id : null;
+    form.type = tx ? tx.type : 'expense';
+    var cats = catOrder();
+    form.category = tx ? tx.category : (cats[0] ? cats[0].name : 'Khác');
+    $('#sheetTitle').textContent = tx ? 'Sửa khoản' : 'Thêm khoản chi';
+    $('#amount').value = tx ? nf.format(tx.amount) : '';
+    $('#date').value = tx ? tx.date : today();
+    $('#note').value = tx ? tx.note : '';
+    $('#deleteBtn').hidden = !tx;
+    $$('input[name=type]').forEach(function (r) { r.checked = r.value === form.type; });
+    $('#typeHint').hidden = form.type !== 'saved';
+    renderCatGrid(tx && cats.every(function (c) { return c.name !== tx.category; }) ? cats.concat([{ name: tx.category, icon: '📦' }]) : cats);
+    renderNotes();
+    updatePreview();
+    $('#sheet').hidden = false; $('#sheetBackdrop').hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { $('#amount').focus(); }, 60);
+  }
+  function closeSheet() {
+    $('#sheet').hidden = true; $('#sheetBackdrop').hidden = true; document.body.style.overflow = '';
+    state.editing = null;
+  }
+  function renderCatGrid(cats) {
+    $('#catGrid').innerHTML = cats.map(function (c) {
+      return '<button type="button" data-cat="' + esc(c.name) + '" class="' + (c.name === form.category ? 'on' : '') + '" aria-pressed="' + (c.name === form.category) + '"><span class="e">' + c.icon + '</span><span>' + esc(c.name) + '</span></button>';
+    }).join('');
+  }
+  function renderNotes() {
+    var seen = {}, notes = [];
+    state.tx.slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); }).forEach(function (t) {
+      if (t.note && !seen[t.note] && t.category === form.category && notes.length < 12) { seen[t.note] = 1; notes.push(t.note); }
+    });
+    $('#noteList').innerHTML = notes.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
+  }
+  function updatePreview() {
+    var v = parseAmount($('#amount').value);
+    $('#amountPreview').textContent = $('#amount').value ? (v ? '= ' + money(v) : 'Số tiền chưa hợp lệ') : 'Gõ 45 = 45.000₫ · 1.2tr = 1.200.000₫';
+  }
+
+  function submitForm(e) {
+    e.preventDefault();
+    var amount = parseAmount($('#amount').value);
+    if (!amount || amount <= 0) { toast('Nhập số tiền hợp lệ nhé'); $('#amount').focus(); return; }
+    var date = $('#date').value || today();
+    var existing = state.editing ? state.tx.filter(function (t) { return t.id === state.editing; })[0] : null;
+    var t = Object.assign({}, existing || { id: uid() }, {
+      date: date, amount: amount, category: form.category, note: $('#note').value.trim(), type: form.type
+    });
+    upsertTx(t);
+    closeSheet();
+    if (form.type === 'saved') {
+      toast('💪 Tuyệt! Đã nhịn được ' + money(amount));
+    } else if (date === today() && state.settings.monthlyBudget) {
+      var s = monthSnapshot(), left = s.allowance - s.dailyToday;
+      toast('Đã lưu ' + money(amount) + ' · ' + (left >= 0 ? 'hôm nay còn ' + money(left) : 'vượt mức hôm nay ' + money(-left)));
+    } else toast('Đã lưu ' + money(amount));
+  }
+
+  /* ================= Toast & tooltip ================= */
+  var toastTimer;
+  function toast(msg) {
+    var el = $('#toast'); el.textContent = msg; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.hidden = true; }, 2800);
+  }
+  function showTip(target) {
+    var parts = (target.getAttribute('data-tip') || '').split('|');
+    var tip = $('#tooltip');
+    tip.textContent = '';
+    var strong = document.createElement('strong'); strong.textContent = parts[1] || '';
+    var span = document.createElement('span'); span.textContent = parts[0] || '';
+    tip.appendChild(strong); tip.appendChild(span);
+    tip.hidden = false;
+    var r = target.getBoundingClientRect();
+    var tw = tip.offsetWidth, th = tip.offsetHeight;
+    var x = Math.min(window.innerWidth - tw - 8, Math.max(8, r.left + r.width / 2 - tw / 2));
+    var y = Math.max(8, r.top - th - 6);
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    $$('.chart g.on.tmp').forEach(function (g) { g.classList.remove('on', 'tmp'); });
+    var g = target.parentNode; if (!g.classList.contains('on')) g.classList.add('on', 'tmp');
+  }
+  function hideTip() {
+    $('#tooltip').hidden = true;
+    $$('.chart g.on.tmp').forEach(function (g) { g.classList.remove('on', 'tmp'); });
+  }
+
+  /* ================= Demo data ================= */
+  function loadDemo() {
+    var rnd = function (a, b) { return Math.round((a + Math.random() * (b - a)) / 1000) * 1000; };
+    var now = new Date(), out = [];
+    for (var i = 0; i < 75; i++) {
+      var d = ymd(addDays(now, -i));
+      var n = 1 + Math.floor(Math.random() * 3);
+      for (var j = 0; j < n; j++) out.push({ id: uid(), date: d, amount: rnd(20000, 70000), category: 'Tiền ăn', note: ['Cơm trưa', 'Bún bò', 'Phở', 'Cơm tối'][j % 4], type: 'expense', createdAt: Date.now() - i * 864e5 + j });
+      if (Math.random() < 0.45) out.push({ id: uid(), date: d, amount: rnd(29000, 65000), category: 'Coffee', note: 'Coffee học bài', type: 'expense', createdAt: Date.now() - i * 864e5 + 5 });
+      if (Math.random() < 0.08) out.push({ id: uid(), date: d, amount: rnd(150000, 600000), category: ['Quần áo', 'Skincare/Mỹ phẩm', 'Mua quà', 'Sports'][i % 4], note: '', type: 'expense', createdAt: Date.now() - i * 864e5 + 6 });
+      if (Math.random() < 0.05) out.push({ id: uid(), date: d, amount: rnd(200000, 800000), category: 'Quần áo', note: 'Trả hàng, không mua nữa', type: 'saved', createdAt: Date.now() - i * 864e5 + 7 });
+      if (addDays(now, -i).getDate() === 5) out.push({ id: uid(), date: d, amount: 3200000, category: 'Phòng trọ', note: 'Tiền phòng', type: 'expense', createdAt: Date.now() - i * 864e5 + 8 });
+      if (addDays(now, -i).getDate() === 10) out.push({ id: uid(), date: d, amount: 100000, category: 'Nuôi xe', note: 'Đổ xăng', type: 'expense', createdAt: Date.now() - i * 864e5 + 9 });
+    }
+    state.tx = out; save(); render(); toast('Đã nạp dữ liệu mẫu – xoá ở Cài đặt khi muốn dùng thật');
+  }
+
+  function exportCsv() {
+    var rows = [['Ngày', 'Số tiền', 'Hạng mục', 'Ghi chú', 'Loại']];
+    state.tx.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).forEach(function (t) {
+      rows.push([t.date, t.amount, t.category, t.note, t.type === 'saved' ? 'Nhịn được' : 'Chi']);
+    });
+    var csv = '﻿' + rows.map(function (r) { return r.map(function (c) { c = String(c == null ? '' : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'costee-' + today() + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* ================= Events ================= */
+  function go(view, anchor) {
+    state.view = view; store.set('view', view); hideTip(); render(); window.scrollTo(0, 0);
+    if (anchor) setTimeout(function () { var el = document.getElementById(anchor); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 30);
+  }
+
+  function settingsCopy() { return JSON.parse(JSON.stringify(state.settings)); }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('button, [data-tip]');
+    if (!t) { hideTip(); return; }
+    if (t.matches('.tabbar [data-view]')) return go(t.dataset.view);
+    if (t.id === 'fab') return openSheet(null);
+    if (t.dataset.go) return go(t.dataset.go, t.dataset.anchor);
+    if (t.dataset.edit) { var tx = state.tx.filter(function (x) { return x.id === t.dataset.edit; })[0]; if (tx) openSheet(tx); return; }
+    if (t.dataset.period) { state.report = { period: t.dataset.period, offset: 0 }; return render(); }
+    if (t.dataset.shift) { state.report.offset = Math.min(0, state.report.offset + +t.dataset.shift); return render(); }
+    if (t.hasAttribute('data-htype')) { state.hist.type = t.dataset.htype; state.hist.limit = 40; return render(); }
+    if (t.dataset.tip != null && t.matches('.hit')) return showTip(t);
+    if (t.dataset.cat) { form.category = t.dataset.cat; $$('#catGrid button').forEach(function (b) { b.classList.toggle('on', b === t); b.setAttribute('aria-pressed', b === t); }); renderNotes(); return; }
+    if (t.dataset.add) { var cur = parseAmount($('#amount').value); $('#amount').value = nf.format(cur + +t.dataset.add); updatePreview(); return; }
+    if (t.dataset.day != null) { $('#date').value = ymd(addDays(new Date(), +t.dataset.day)); return; }
+    if (t.dataset.bdel != null) { var s1 = settingsCopy(); s1.budgets.splice(+t.dataset.bdel, 1); return saveSettings(s1); }
+    if (t.dataset.cdel != null) {
+      var s2 = settingsCopy(), c = s2.categories[+t.dataset.cdel];
+      var used = state.tx.filter(function (x) { return x.category === c.name; }).length;
+      if (!confirm('Xoá hạng mục "' + c.name + '"?' + (used ? ' (' + used + ' khoản cũ vẫn giữ tên này)' : ''))) return;
+      s2.categories.splice(+t.dataset.cdel, 1); return saveSettings(s2);
+    }
+    switch (t.id) {
+      case 'sheetClose': return closeSheet();
+      case 'deleteBtn':
+        if (state.editing && confirm('Xoá khoản này?')) { deleteTx(state.editing); closeSheet(); toast('Đã xoá'); }
+        return;
+      case 'syncBtn': return state.conn.url ? sync() : go('settings', 'conn');
+      case 'demoBtn': return loadDemo();
+      case 'moreBtn': state.hist.limit += 60; return render();
+      case 'exportCsv': return exportCsv();
+      case 'addBudget': { var s3 = settingsCopy(); s3.budgets.push({ id: uid(), name: 'Nhóm mới', limit: 500000, cats: [] }); return saveSettings(s3); }
+      case 'addCat': {
+        var nm = prompt('Tên hạng mục mới:'); if (!nm || !nm.trim()) return;
+        var s4 = settingsCopy();
+        if (s4.categories.some(function (x) { return x.name === nm.trim(); })) return toast('Hạng mục đã có');
+        s4.categories.push({ name: nm.trim(), icon: '🏷️' }); return saveSettings(s4);
+      }
+      case 'wipeLocal':
+        if (!confirm(state.conn.url ? 'Xoá dữ liệu lưu tạm trên máy này? (Dữ liệu trên Google Sheet không bị ảnh hưởng, sẽ tải lại khi đồng bộ.)' : 'Xoá toàn bộ dữ liệu trên máy này? Không thể hoàn tác.')) return;
+        state.tx = []; state.queue = []; save(); render(); if (state.conn.url) sync(); return;
+      case 'connSave': return connect();
+      case 'syncNow': return sync();
+      case 'connRemove':
+        if (!confirm('Ngắt kết nối Google Sheet trên máy này?')) return;
+        state.conn = { url: '', token: '' }; state.queue = []; store.set('conn', state.conn); save(); return render();
+      case 'importOld': return importOld();
+    }
+  });
+
+  document.addEventListener('pointerover', function (e) { var h = e.target.closest && e.target.closest('.chart .hit'); if (h && e.pointerType === 'mouse') showTip(h); });
+  document.addEventListener('pointerout', function (e) { if (e.target.closest && e.target.closest('.chart .hit') && e.pointerType === 'mouse') hideTip(); });
+  document.addEventListener('focusin', function (e) { if (e.target.matches && e.target.matches('.chart .hit')) showTip(e.target); });
+  window.addEventListener('scroll', hideTip, { passive: true });
+
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'amount') return updatePreview();
+    if (t.id === 'histQ') { state.hist.q = t.value; state.hist.limit = 40; return render(); }
+  });
+
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.name === 'type') { form.type = t.value; $('#typeHint').hidden = form.type !== 'saved'; $('#sheetTitle').textContent = state.editing ? 'Sửa khoản' : form.type === 'saved' ? 'Ghi khoản nhịn được' : 'Thêm khoản chi'; return; }
+    if (t.id === 'histCat') { state.hist.cat = t.value; state.hist.limit = 40; return render(); }
+    var s = settingsCopy();
+    if (t.id === 'monthlyBudget') { s.monthlyBudget = parseAmountLoose(t.value); return saveSettings(s); }
+    if (t.dataset.excl) {
+      s.excludeFromDaily = (s.excludeFromDaily || []).filter(function (x) { return x !== t.dataset.excl; });
+      if (t.checked) s.excludeFromDaily.push(t.dataset.excl);
+      return saveSettings(s);
+    }
+    var ge = t.closest('.group-edit');
+    if (ge) {
+      var b = s.budgets[+ge.dataset.bi];
+      if (t.dataset.bf === 'name') b.name = t.value.trim() || 'Nhóm';
+      if (t.dataset.bf === 'limit') b.limit = parseAmountLoose(t.value);
+      if (t.dataset.bcat) { b.cats = b.cats.filter(function (x) { return x !== t.dataset.bcat; }); if (t.checked) b.cats.push(t.dataset.bcat); }
+      return saveSettings(s);
+    }
+    var ce = t.closest('.cat-edit');
+    if (ce) {
+      var c = s.categories[+ce.dataset.ci];
+      if (t.dataset.cf === 'icon') c.icon = t.value.trim() || '🏷️';
+      if (t.dataset.cf === 'name') {
+        var nn = t.value.trim(), old = c.name;
+        if (!nn || nn === old) return render();
+        if (s.categories.some(function (x) { return x.name === nn; })) { toast('Tên đã tồn tại'); return render(); }
+        c.name = nn;
+        s.budgets.forEach(function (bg) { bg.cats = bg.cats.map(function (x) { return x === old ? nn : x; }); });
+        s.excludeFromDaily = (s.excludeFromDaily || []).map(function (x) { return x === old ? nn : x; });
+        var now = Date.now();
+        state.tx = state.tx.map(function (x) {
+          if (x.category !== old) return x;
+          var nx = Object.assign({}, x, { category: nn, updatedAt: now });
+          if (state.conn.url) {
+            state.queue = state.queue.filter(function (q) { return !(q.tx && q.tx.id === nx.id); });
+            state.queue.push({ op: 'upsert', tx: nx });
+          }
+          return nx;
+        });
+      }
+      return saveSettings(s);
+    }
+  });
+
+  // Số tiền trong cài đặt: "9tr", "9.000.000", "700k" (không áp dụng quy tắc "<1000 = nghìn" để tránh nhầm)
+  function parseAmountLoose(v) {
+    var s = String(v).trim();
+    if (/^[\d.,\s]+$/.test(s)) return +s.replace(/[.,\s]/g, '') || 0;
+    return parseAmount(s);
+  }
+
+  function connect() {
+    var url = $('#connUrl').value.trim(), token = $('#connToken').value.trim();
+    if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) return toast('URL phải bắt đầu bằng https://script.google.com/…');
+    if (!token) return toast('Nhập mã bí mật');
+    var btn = $('#connSave'); btn.disabled = true; btn.textContent = 'Đang kiểm tra…';
+    var conn = { url: url, token: token };
+    var hadLocal = state.tx.length && !state.conn.url;
+    api({ action: 'ping' }, conn).then(function (j) {
+      state.conn = conn; store.set('conn', conn);
+      // Dữ liệu tạo khi chưa kết nối (không phải dữ liệu mẫu cũ) sẽ được gửi lên sheet
+      if (hadLocal && confirm('Gửi ' + state.tx.length + ' khoản đang có trên máy này lên Google Sheet?\n(Bấm Huỷ nếu đó chỉ là dữ liệu mẫu.)')) {
+        state.queue = state.tx.map(function (t) { return { op: 'upsert', tx: t }; });
+      } else { state.queue = []; state.tx = []; }
+      save();
+      toast('✓ Đã kết nối "' + j.name + '"');
+      return sync();
+    }).catch(function (e) {
+      toast('Không kết nối được: ' + e.message);
+    }).then(function () { render(); });
+  }
+
+  function importOld() {
+    if (!confirm('Nhập toàn bộ dữ liệu từ tab "1. Chi tiêu" vào app?\nCó thể chạy lại – các dòng đã nhập sẽ không bị trùng.')) return;
+    var btn = $('#importOld'); btn.disabled = true; btn.textContent = 'Đang nhập…';
+    flushThen(function () { return api({ action: 'importLegacy' }); }).then(function (j) {
+      state.tx = j.tx; if (j.settings) state.settings = Object.assign({}, DEFAULT_SETTINGS, j.settings);
+      state.lastSync = Date.now(); save(); alert(j.message);
+    }).catch(function (e) { alert('Lỗi: ' + e.message); }).then(render);
+  }
+  function flushThen(fn) { return (state.queue.length ? sync() : Promise.resolve()).then(fn); }
+
+  $('#txForm').addEventListener('submit', submitForm);
+  $('#sheetBackdrop').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+  window.addEventListener('online', function () { scheduleSync(0); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { render(); scheduleSync(0); } });
+
+  /* ================= Boot ================= */
+  if (location.hash === '#add') { history.replaceState(null, '', location.pathname); setTimeout(function () { openSheet(null); }, 50); }
+  render();
+  if (state.conn.url) scheduleSync(0);
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () { /* ignore */ });
+
+  // cho test
+  window.__costee = { parseAmount: parseAmount, state: state, monthSnapshot: monthSnapshot };
+})();

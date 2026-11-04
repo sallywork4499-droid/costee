@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Costee – Sổ chi tiêu</title>
+  <meta name="description" content="Ghi chi tiêu nhanh, xem báo cáo mỗi ngày, kiểm soát ngân sách. Dữ liệu lưu trên Google Sheet của bạn.">
+  <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#161615" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Costee">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <div class="brand">Costee</div>
+        <div class="subtitle" id="todayLabel"></div>
+      </div>
+      <button class="sync" id="syncBtn" type="button" aria-label="Trạng thái đồng bộ">
+        <span class="dot" id="syncDot"></span><span id="syncText">Trên máy</span>
+      </button>
+    </header>
+
+    <main id="view" tabindex="-1"></main>
+  </div>
+
+  <nav class="tabbar" aria-label="Điều hướng">
+    <button data-view="today" class="active" type="button"><span class="ti">◎</span><span>Hôm nay</span></button>
+    <button data-view="report" type="button"><span class="ti">▥</span><span>Báo cáo</span></button>
+    <button class="fab" id="fab" type="button" aria-label="Thêm khoản chi">+</button>
+    <button data-view="history" type="button"><span class="ti">☰</span><span>Lịch sử</span></button>
+    <button data-view="settings" type="button"><span class="ti">⚙</span><span>Cài đặt</span></button>
+  </nav>
+
+  <!-- Thêm / sửa khoản chi -->
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+    <div class="sheet-handle"></div>
+    <form id="txForm" autocomplete="off">
+      <div class="sheet-head">
+        <h2 id="sheetTitle">Thêm khoản chi</h2>
+        <button type="button" class="icon-btn" id="sheetClose" aria-label="Đóng">✕</button>
+      </div>
+
+      <div class="seg" role="radiogroup" aria-label="Loại">
+        <label><input type="radio" name="type" value="expense" checked><span>💸 Chi tiêu</span></label>
+        <label><input type="radio" name="type" value="saved"><span>💪 Nhịn được</span></label>
+      </div>
+      <p class="hint" id="typeHint" hidden>Ghi lại món bạn định mua nhưng đã không mua / trả hàng – để thấy mình tiết kiệm được bao nhiêu.</p>
+
+      <label class="amount-wrap">
+        <span class="sr-only">Số tiền</span>
+        <input id="amount" name="amount" inputmode="decimal" placeholder="0" required enterkeyhint="done">
+        <span class="amount-unit">₫</span>
+      </label>
+      <div class="amount-preview" id="amountPreview">Gõ 45 = 45.000₫ · 1.2tr = 1.200.000₫</div>
+      <div class="chips" id="quickAmounts">
+        <button type="button" data-add="10000">+10k</button>
+        <button type="button" data-add="20000">+20k</button>
+        <button type="button" data-add="50000">+50k</button>
+        <button type="button" data-add="100000">+100k</button>
+        <button type="button" data-add="500000">+500k</button>
+      </div>
+
+      <div class="field-label">Hạng mục</div>
+      <div class="cat-grid" id="catGrid"></div>
+
+      <div class="row2">
+        <label class="field">
+          <span class="field-label">Ngày</span>
+          <input type="date" id="date" name="date" required>
+        </label>
+        <div class="field">
+          <span class="field-label">&nbsp;</span>
+          <div class="chips tight">
+            <button type="button" data-day="0">Hôm nay</button>
+            <button type="button" data-day="-1">Hôm qua</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Ghi chú (không bắt buộc)</span>
+        <input id="note" name="note" list="noteList" placeholder="vd: Cơm trưa, Highlands…" maxlength="120">
+        <datalist id="noteList"></datalist>
+      </label>
+
+      <div class="sheet-actions">
+        <button type="button" class="btn danger ghost" id="deleteBtn" hidden>Xoá</button>
+        <button type="submit" class="btn primary grow" id="saveBtn">Lưu</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="tooltip" id="tooltip" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
