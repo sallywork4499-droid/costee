@@ -60,55 +60,63 @@
     return num < 1000 ? Math.round(num * 1e3) : Math.round(num);
   }
 
-  /* ================= Mascot: bé Mơ ================= */
-  /** Mascot bé Mơ: khối tròn màu mơ, phong cách phẳng tối giản. mood: happy | ok | worried | shocked | sleepy | proud */
+  /* ================= Mascot: bé Mèo xanh ================= */
+  /** Mascot bé Mèo xanh: phong cách phẳng tối giản. mood: happy | ok | worried | shocked | sleepy | proud */
   var mascotSeq = 0;
   function mascot(mood, cls) {
     var id = 'mg' + (++mascotSeq);
-    var face = '#5b3a2b', cheek = '#f08a72', coin = '#e9b44c';
+    var face = '#2f4a37', light = '#dcefd4', nose = '#ec9a84', cheek = '#f7b3a6', coin = '#e9b44c';
     var s = '<svg class="' + (cls || '') + '" viewBox="0 0 120 120" aria-hidden="true" focusable="false">';
-    s += '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9b98c"/><stop offset="1" stop-color="#f19a68"/></linearGradient>' +
-      '<radialGradient id="' + id + 'h" cx=".38" cy=".3" r=".6"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>';
-    s += '<ellipse cx="60" cy="114" rx="22" ry="3.2" fill="rgba(120,80,50,.13)"/>';
+    s += '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b3dcab"/><stop offset="1" stop-color="#76b384"/></linearGradient>' +
+      '<radialGradient id="' + id + 'h" cx=".36" cy=".28" r=".6"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>';
+    s += '<ellipse cx="60" cy="114" rx="24" ry="3.2" fill="rgba(60,90,60,.14)"/>';
     var up = mood === 'shocked' ? -3 : 0;
     s += '<g transform="translate(0 ' + up + ')">';
-    // tai bo tròn
-    var earTilt = mood === 'worried' || mood === 'sleepy' ? 10 : 0;
-    s += '<g transform="rotate(' + (-25 - earTilt) + ' 38 41)"><ellipse cx="38" cy="41" rx="10" ry="12" fill="url(#' + id + ')"/><ellipse cx="38" cy="42" rx="5.5" ry="7" fill="#fcd3b6" opacity=".85"/></g>';
-    s += '<g transform="rotate(' + (25 + earTilt) + ' 82 41)"><ellipse cx="82" cy="41" rx="10" ry="12" fill="url(#' + id + ')"/><ellipse cx="82" cy="42" rx="5.5" ry="7" fill="#fcd3b6" opacity=".85"/></g>';
-    // lọn tóc xoăn trên đỉnh
-    s += '<path d="M57 35 C55 29 59 25 63 27 C66 29 64 33 61 32" fill="none" stroke="#ef9561" stroke-width="3" stroke-linecap="round"/>';
+    // đuôi cong
+    var tail = mood === 'shocked' ? 'M88 98 C104 96 108 76 104 62 C103 57 98 56 97 61' : mood === 'sleepy' || mood === 'worried' ? 'M86 101 C100 104 110 98 108 88 C107 83 101 83 101 88' : 'M88 98 C104 98 110 84 104 74 C101 69 95 70 97 75';
+    s += '<path d="' + tail + '" fill="none" stroke="#7fbb8a" stroke-width="8" stroke-linecap="round"/>';
+    // tai mèo
+    var droop = mood === 'worried' || mood === 'sleepy' ? 8 : 0;
+    s += '<g transform="rotate(' + (-droop) + ' 40 44)"><path d="M29 58 C28 46 30 33 34 24 Q36 20 40 23 C46 28 52 35 56 41Z" fill="url(#' + id + ')"/><path d="M35 49 C34 42 35 35 37 30 Q38 28 40 30 C43 33 46 37 48 41Z" fill="' + light + '" opacity=".9"/></g>';
+    s += '<g transform="rotate(' + droop + ' 80 44)"><path d="M91 58 C92 46 90 33 86 24 Q84 20 80 23 C74 28 68 35 64 41Z" fill="url(#' + id + ')"/><path d="M85 49 C86 42 85 35 83 30 Q82 28 80 30 C77 33 74 37 72 41Z" fill="' + light + '" opacity=".9"/></g>';
     // thân
-    s += '<path d="M60 34 C83 34 96 51 96 72 C96 94 81 106 60 106 C39 106 24 94 24 72 C24 51 37 34 60 34Z" fill="url(#' + id + ')"/>';
-    s += '<path d="M60 34 C83 34 96 51 96 72 C96 94 81 106 60 106 C39 106 24 94 24 72 C24 51 37 34 60 34Z" fill="url(#' + id + 'h)"/>';
-    s += '<ellipse cx="60" cy="93" rx="16" ry="9" fill="#fcd3b6" opacity=".45"/>';
+    var body = 'M60 37 C84 37 96 54 96 75 C96 96 81 107 60 107 C39 107 24 96 24 75 C24 54 36 37 60 37Z';
+    s += '<path d="' + body + '" fill="url(#' + id + ')"/><path d="' + body + '" fill="url(#' + id + 'h)"/>';
+    s += '<ellipse cx="60" cy="95" rx="17" ry="9" fill="' + light + '" opacity=".55"/>';
+    // vằn nhỏ trên trán
+    s += '<g stroke="#6aa877" stroke-width="2.6" stroke-linecap="round" opacity=".7"><path d="M60 41 V47"/><path d="M53 42 L54.5 47"/><path d="M67 42 L65.5 47"/></g>';
     // má
-    s += '<ellipse cx="41" cy="77" rx="6" ry="3.6" fill="' + cheek + '" opacity=".45"/><ellipse cx="79" cy="77" rx="6" ry="3.6" fill="' + cheek + '" opacity=".45"/>';
+    s += '<ellipse cx="40" cy="78" rx="6" ry="3.5" fill="' + cheek + '" opacity=".75"/><ellipse cx="80" cy="78" rx="6" ry="3.5" fill="' + cheek + '" opacity=".75"/>';
     // mắt
     var ln = 'fill="none" stroke="' + face + '" stroke-width="3" stroke-linecap="round"';
-    if (mood === 'happy' || mood === 'proud') s += '<path d="M44 69 Q48.5 64 53 69" ' + ln + '/><path d="M67 69 Q71.5 64 76 69" ' + ln + '/>';
-    else if (mood === 'sleepy') s += '<path d="M44 69 Q48.5 72.5 53 69" ' + ln + '/><path d="M67 69 Q71.5 72.5 76 69" ' + ln + '/>';
-    else if (mood === 'shocked') s += '<circle cx="48.5" cy="68" r="4.6" fill="' + face + '"/><circle cx="71.5" cy="68" r="4.6" fill="' + face + '"/><circle cx="50" cy="66.5" r="1.5" fill="#fff"/><circle cx="73" cy="66.5" r="1.5" fill="#fff"/>';
+    var ln2 = ln.replace('3"', '2.4"');
+    if (mood === 'happy' || mood === 'proud') s += '<path d="M43 68 Q47.5 63 52 68" ' + ln + '/><path d="M68 68 Q72.5 63 77 68" ' + ln + '/>';
+    else if (mood === 'sleepy') s += '<path d="M43 68 Q47.5 71.5 52 68" ' + ln + '/><path d="M68 68 Q72.5 71.5 77 68" ' + ln + '/>';
+    else if (mood === 'shocked') s += '<circle cx="47.5" cy="67" r="4.8" fill="' + face + '"/><circle cx="72.5" cy="67" r="4.8" fill="' + face + '"/><circle cx="49" cy="65.5" r="1.6" fill="#fff"/><circle cx="74" cy="65.5" r="1.6" fill="#fff"/>';
     else {
-      s += '<ellipse cx="48.5" cy="68" rx="3" ry="3.6" fill="' + face + '"/><ellipse cx="71.5" cy="68" rx="3" ry="3.6" fill="' + face + '"/>';
-      if (mood === 'worried') s += '<path d="M43 62.5 L52 59.5" ' + ln.replace('3"', '2.4"') + '/><path d="M77 62.5 L68 59.5" ' + ln.replace('3"', '2.4"') + '/>';
+      s += '<ellipse cx="47.5" cy="67" rx="3" ry="3.8" fill="' + face + '"/><ellipse cx="72.5" cy="67" rx="3" ry="3.8" fill="' + face + '"/>';
+      if (mood === 'worried') s += '<path d="M42 61.5 L51 58.5" ' + ln2 + '/><path d="M78 61.5 L69 58.5" ' + ln2 + '/>';
     }
-    // miệng
-    if (mood === 'happy' || mood === 'ok') s += '<path d="M55 77 Q60 82 65 77" ' + ln.replace('3"', '2.6"') + '/>';
-    else if (mood === 'proud') s += '<path d="M54.5 76 Q60 84 65.5 76Z" fill="' + face + '"/>';
-    else if (mood === 'worried') s += '<path d="M55 80 Q57.5 77.5 60 80 Q62.5 82.5 65 80" ' + ln.replace('3"', '2.4"') + '/>';
-    else if (mood === 'shocked') s += '<ellipse cx="60" cy="80" rx="3" ry="3.8" fill="' + face + '"/>';
-    else s += '<ellipse cx="60" cy="79" rx="2" ry="1.6" fill="' + face + '"/>';
-    // đồng xu (tự hào / lo lắng)
+    // mũi + miệng
+    s += '<path d="M57 73 Q60 71.5 63 73 Q61.5 76 60 76.5 Q58.5 76 57 73Z" fill="' + nose + '"/>';
+    if (mood === 'happy' || mood === 'ok' || mood === 'proud') s += '<path d="M60 76.5 V78 M55 78 Q57.5 81.5 60 78 Q62.5 81.5 65 78" ' + ln2 + '/>';
+    else if (mood === 'worried') s += '<path d="M55 81 Q57.5 78.5 60 81 Q62.5 83.5 65 81" ' + ln2 + '/>';
+    else if (mood === 'shocked') s += '<ellipse cx="60" cy="81.5" rx="3" ry="3.6" fill="' + face + '"/>';
+    else s += '<path d="M57 79 Q60 80.5 63 79" ' + ln2 + '/>';
+    // ria
+    s += '<g stroke="' + face + '" stroke-width="1.5" stroke-linecap="round" opacity=".55"><path d="M34 73 L23 70.5"/><path d="M34 77 L22 78"/><path d="M86 73 L97 70.5"/><path d="M86 77 L98 78"/></g>';
+    // chân trước / đồng xu
     if (mood === 'proud' || mood === 'worried') {
-      s += '<circle cx="60" cy="95" r="9" fill="' + coin + '"/><circle cx="60" cy="95" r="6" fill="none" stroke="#c98f2a" stroke-width="1.4"/>';
-      s += '<text x="60" y="98.5" text-anchor="middle" font-size="9" font-weight="800" font-family="Nunito, Arial, sans-serif" fill="#a56f15">đ</text>';
-      s += '<ellipse cx="50" cy="96" rx="4.5" ry="3.6" fill="#f3a676"/><ellipse cx="70" cy="96" rx="4.5" ry="3.6" fill="#f3a676"/>';
+      s += '<circle cx="60" cy="96" r="9" fill="' + coin + '"/><circle cx="60" cy="96" r="6" fill="none" stroke="#c98f2a" stroke-width="1.4"/>';
+      s += '<text x="60" y="99.5" text-anchor="middle" font-size="9" font-weight="800" font-family="Nunito, Arial, sans-serif" fill="#a56f15">đ</text>';
+      s += '<ellipse cx="50" cy="97" rx="5" ry="4" fill="#cfe8c7"/><ellipse cx="70" cy="97" rx="5" ry="4" fill="#cfe8c7"/>';
+    } else {
+      s += '<ellipse cx="50" cy="104" rx="6.5" ry="4.2" fill="#cfe8c7"/><ellipse cx="70" cy="104" rx="6.5" ry="4.2" fill="#cfe8c7"/>';
     }
     s += '</g>';
-    if (mood === 'worried') s += '<path d="M92 44 Q97 51 95 54 Q91 56 90 51 Q90 48 92 44Z" fill="#a9d3ea"/>';
-    if (mood === 'sleepy') s += '<text x="90" y="34" font-family="Caveat, cursive" font-size="17" font-weight="700" fill="#b9805a">z</text><text x="100" y="24" font-family="Caveat, cursive" font-size="12" font-weight="700" fill="#b9805a">z</text>';
-    if (mood === 'happy' || mood === 'proud') s += '<path d="M100 40 l1.6 -4 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6z" fill="#f2c46b"/>';
+    if (mood === 'worried') s += '<path d="M94 44 Q99 51 97 54 Q93 56 92 51 Q92 48 94 44Z" fill="#a9d3ea"/>';
+    if (mood === 'sleepy') s += '<text x="90" y="32" font-family="Caveat, cursive" font-size="17" font-weight="700" fill="#5d7a60">z</text><text x="100" y="22" font-family="Caveat, cursive" font-size="12" font-weight="700" fill="#5d7a60">z</text>';
+    if (mood === 'happy' || mood === 'proud') s += '<path d="M101 38 l1.6 -4 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6z" fill="#f2c46b"/>';
     return s + '</svg>';
   }
 
