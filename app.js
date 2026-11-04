@@ -158,7 +158,8 @@
     view: store.get('view', 'today'),
     report: { period: 'month', offset: 0 },
     hist: { q: '', cat: '', type: '', limit: 40 },
-    editing: null
+    editing: null,
+    connDraft: {}   // nội dung đang gõ ở ô kết nối, giữ lại khi màn hình làm mới
   };
 
   function save() {
@@ -812,8 +813,8 @@
         '<li>Tải lại Google Sheet → menu <b>Costee → Khởi tạo</b> → chép <b>mã bí mật</b>.</li>' +
         '<li>Trong Apps Script: <b>Triển khai → Tùy chọn triển khai mới → Ứng dụng web</b>, "Người có quyền truy cập": <b>Bất kỳ ai</b> → chép URL.</li>' +
         '<li>Dán URL và mã vào đây → <b>Kết nối</b>.</li></ol></div>') +
-      '<label class="field"><span class="field-label">URL ứng dụng web</span><input id="connUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(C.url) + '"></label>' +
-      '<label class="field"><span class="field-label">Mã bí mật</span><input id="connToken" placeholder="16 ký tự" value="' + esc(C.token) + '"></label>' +
+      '<label class="field"><span class="field-label">URL ứng dụng web</span><input id="connUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(state.connDraft.url != null ? state.connDraft.url : C.url) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
+      '<label class="field"><span class="field-label">Mã bí mật</span><input id="connToken" placeholder="16 ký tự" value="' + esc(state.connDraft.token != null ? state.connDraft.token : C.token) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
       '<div class="btn-row"><button class="btn primary" id="connSave">' + (C.url ? 'Lưu & kiểm tra' : 'Kết nối') + '</button>' +
       (C.url ? '<button class="btn" id="syncNow">Đồng bộ ngay</button><button class="btn" id="importOld">Nhập dữ liệu cũ từ tab "1. Chi tiêu"</button><button class="btn ghost danger" id="connRemove">Ngắt kết nối</button>' : '') +
       '</div></section>';
@@ -1037,7 +1038,7 @@
       case 'syncNow': return sync();
       case 'connRemove':
         if (!confirm('Ngắt kết nối Google Sheet trên máy này?')) return;
-        state.conn = { url: '', token: '' }; state.queue = []; store.set('conn', state.conn); save(); return render();
+        state.conn = { url: '', token: '' }; state.queue = []; store.set('conn', state.conn); state.connDraft = {}; save(); return render();
       case 'importOld': return importOld();
     }
   });
@@ -1050,6 +1051,8 @@
   document.addEventListener('input', function (e) {
     var t = e.target;
     if (t.id === 'amount') return updatePreview();
+    if (t.id === 'connUrl') { state.connDraft.url = t.value; return; }
+    if (t.id === 'connToken') { state.connDraft.token = t.value; return; }
     if (t.id === 'histQ') { state.hist.q = t.value; state.hist.limit = 40; return render(); }
   });
 
@@ -1113,7 +1116,7 @@
     var conn = { url: url, token: token };
     var hadLocal = state.tx.length && !state.conn.url;
     api({ action: 'ping' }, conn).then(function (j) {
-      state.conn = conn; store.set('conn', conn);
+      state.conn = conn; store.set('conn', conn); state.connDraft = {};
       // Dữ liệu tạo khi chưa kết nối (không phải dữ liệu mẫu cũ) sẽ được gửi lên sheet
       if (hadLocal && confirm('Gửi ' + state.tx.length + ' khoản đang có trên máy này lên Google Sheet?\n(Bấm Huỷ nếu đó chỉ là dữ liệu mẫu.)')) {
         state.queue = state.tx.map(function (t) { return { op: 'upsert', tx: t }; });
@@ -1140,7 +1143,13 @@
   $('#sheetBackdrop').addEventListener('click', closeSheet);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
   window.addEventListener('online', function () { scheduleSync(0); });
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) { render(); scheduleSync(0); } });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) return;
+    // Không làm mới khi đang gõ dở trong một ô nhập, để không mất nội dung
+    var a = document.activeElement;
+    if (!(a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && $('#view').contains(a))) render();
+    scheduleSync(0);
+  });
 
   /* ================= Boot ================= */
   if (location.hash === '#add') { history.replaceState(null, '', location.pathname); setTimeout(function () { openSheet(null); }, 50); }
