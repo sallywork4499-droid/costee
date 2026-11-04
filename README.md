@@ -2,7 +2,22 @@
 
 Ghi chi tiêu trong vài giây, xem báo cáo mỗi ngày và giữ ngân sách. Dữ liệu được lưu trong **Google Sheet của bạn**.
 
-**Mở app:** https://sallywork4499-droid.github.io/costee/
+**Mở app:** link Vercel của project `costee` (Vercel → project costee → Domains).
+
+## Cách app hoạt động
+
+```
+Điện thoại / máy tính
+  └─ App Costee (HTML/CSS/JS tĩnh, deploy trên Vercel)
+       ├─ Lưu tạm trên máy → ghi được cả khi mất mạng
+       └─ Gửi/nhận dữ liệu ──► Google Apps Script (URL /exec + mã bí mật)
+                                   └─► Google Sheet của bạn
+                                        ├─ tab Costee_GiaoDich (các khoản chi)
+                                        └─ tab Costee_CaiDat (ngân sách, hạn mức, hạng mục)
+```
+
+- **Code** nằm trên GitHub. **Dữ liệu** chỉ nằm trong Google Sheet (không có trong repo).
+- Không có server riêng, không cần build, không cần biến môi trường.
 
 ## Tính năng
 
@@ -17,6 +32,14 @@ Ghi chi tiêu trong vài giây, xem báo cáo mỗi ngày và giữ ngân sách.
 | 📱 Dùng như app trên điện thoại, **vẫn ghi được khi mất mạng** (tự gửi lên khi có mạng lại) | |
 | 🔍 Lịch sử: tìm kiếm, lọc, sửa, xoá; xuất CSV | |
 
+## Deploy lên Vercel
+
+1. Vercel → **Add New → Project** → chọn repo `costee` → **Import**.
+2. **Framework Preset:** `Other` · **Build Command:** để trống · **Output Directory:** để trống · không cần Environment Variables.
+3. **Deploy**. Mỗi lần push lên `main`, Vercel tự deploy lại.
+
+> Cách khác: GitHub Pages (Settings → Pages → Branch `main`, thư mục `/ (root)`) hoặc bất kỳ hosting tĩnh nào.
+
 ## Kết nối Google Sheet (làm 1 lần, khoảng 5 phút)
 
 App không sửa tab cũ của bạn. Nó tạo thêm 2 tab: `Costee_GiaoDich` (các khoản chi) và `Costee_CaiDat` (ngân sách, hạn mức, hạng mục).
@@ -29,12 +52,18 @@ App không sửa tab cũ của bạn. Nó tạo thêm 2 tab: `Costee_GiaoDich` (
    - *Thực thi dưới dạng*: **Tôi**
    - *Người có quyền truy cập*: **Bất kỳ ai (Anyone)**
    - Bấm **Triển khai** rồi chép **URL ứng dụng web** (dạng `https://script.google.com/macros/s/…/exec`).
-6. Mở app → **Cài đặt** → dán URL và mã bí mật → **Kết nối**.
+6. Mở app (link Vercel) → tab **Cài đặt** ở thanh dưới cùng của app → dán URL và mã bí mật → **Kết nối**.
 7. Bấm **Nhập dữ liệu cũ từ tab "1. Chi tiêu"** để đưa toàn bộ lịch sử vào app. Bước này chạy lại được nhiều lần mà không bị trùng.
 
 > 🔒 Chỉ ai có **cả URL lẫn mã bí mật** mới đọc hoặc ghi được dữ liệu. Không chia sẻ hai thứ này. Nếu lộ, vào **Costee → Đổi mã bí mật mới**.
 
 > Khi sửa `Code.gs` sau này: **Triển khai → Quản lý các lần triển khai → ✏ → Phiên bản: Mới**. Làm vậy thì URL giữ nguyên.
+
+### Gỡ lỗi kết nối
+
+- **"Failed to fetch" / "Không gọi được Apps Script"**: mở URL `/exec` trong cửa sổ ẩn danh. Nếu ra trang đăng nhập Google → vào **Quản lý các lần triển khai → ✏ → Người có quyền truy cập: Bất kỳ ai** (không phải "Bất kỳ ai có tài khoản Google") → **Phiên bản mới → Triển khai**. URL phải kết thúc bằng `/exec`, không phải `/dev`.
+- **"Sai mã bí mật"**: xem lại mã ở menu **Costee → Xem lại mã bí mật**.
+- Tài khoản Google công ty/trường học có thể bị chặn tuỳ chọn "Bất kỳ ai" → dùng Gmail cá nhân.
 
 ### Nhập dữ liệu cũ hoạt động thế nào
 
@@ -57,3 +86,8 @@ Không cần build, chỉ có HTML, CSS và JS thuần:
 - `apps-script/Code.gs`: backend chạy trong Google Sheet.
 
 Chạy thử trên máy: `python3 -m http.server` rồi mở http://localhost:8000.
+
+## Sao lưu
+
+- **Code:** repo GitHub này (hoặc tải ZIP: nút **Code → Download ZIP**).
+- **Dữ liệu:** nằm trong Google Sheet. Có thể tải thêm bản CSV trong app: **Cài đặt → Dữ liệu → Tải về CSV**.
