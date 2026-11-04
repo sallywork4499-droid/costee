@@ -115,7 +115,7 @@
     }
     s += '</g>';
     if (mood === 'worried') s += '<path d="M94 44 Q99 51 97 54 Q93 56 92 51 Q92 48 94 44Z" fill="#a9d3ea"/>';
-    if (mood === 'sleepy') s += '<text x="90" y="32" font-family="Caveat, cursive" font-size="17" font-weight="700" fill="#5d7a60">z</text><text x="100" y="22" font-family="Caveat, cursive" font-size="12" font-weight="700" fill="#5d7a60">z</text>';
+    if (mood === 'sleepy') s += '<text x="90" y="32" font-family="Patrick Hand, cursive" font-size="17" font-weight="700" fill="#5d7a60">z</text><text x="100" y="22" font-family="Patrick Hand, cursive" font-size="12" font-weight="700" fill="#5d7a60">z</text>';
     if (mood === 'happy' || mood === 'proud') s += '<path d="M101 38 l1.6 -4 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6z" fill="#f2c46b"/>';
     return s + '</svg>';
   }
