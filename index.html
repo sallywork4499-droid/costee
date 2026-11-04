@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Costee – Sổ chi tiêu</title>
   <meta name="description" content="Ghi chi tiêu nhanh, xem báo cáo mỗi ngày, kiểm soát ngân sách. Dữ liệu lưu trên Google Sheet của bạn.">
-  <meta name="theme-color" content="#f6f0e4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1b1d18" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f7f1e6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1e19" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Costee">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,0..100&family=Nunito:wght@400;500;600;700;800&family=Caveat:wght@500;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -24,7 +24,7 @@
       <div class="brand-wrap">
         <span class="brand-logo" id="brandMascot" aria-hidden="true"></span>
         <div>
-          <div class="brand">Cost<em>ee</em></div>
+          <div class="brand">Costee</div>
           <div class="subtitle" id="todayLabel"></div>
         </div>
       </div>
@@ -37,11 +37,11 @@
   </div>
 
   <nav class="tabbar" aria-label="Điều hướng">
-    <button data-view="today" class="active" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></svg><span>Hôm nay</span></button>
-    <button data-view="report" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 19v-6M12 19V7M18 19v-9"/></svg><span>Báo cáo</span></button>
-    <button class="fab" id="fab" type="button" aria-label="Thêm khoản chi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-    <button data-view="history" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 7h10M9 12h10M9 17h10"/><circle cx="5" cy="7" r=".8" fill="currentColor"/><circle cx="5" cy="12" r=".8" fill="currentColor"/><circle cx="5" cy="17" r=".8" fill="currentColor"/></svg><span>Lịch sử</span></button>
-    <button data-view="settings" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg><span>Cài đặt</span></button>
+    <button data-view="today" class="active" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></svg><span>Hôm nay</span></button>
+    <button data-view="report" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 19v-6M12 19V7M18 19v-9"/></svg><span>Báo cáo</span></button>
+    <button class="fab" id="fab" type="button" aria-label="Ghi khoản chi"><span class="fab-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg></span><span>Ghi</span></button>
+    <button data-view="history" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 7h10M9 12h10M9 17h10"/><circle cx="5" cy="7" r=".8" fill="currentColor"/><circle cx="5" cy="12" r=".8" fill="currentColor"/><circle cx="5" cy="17" r=".8" fill="currentColor"/></svg><span>Lịch sử</span></button>
+    <button data-view="settings" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg><span>Cài đặt</span></button>
   </nav>
 
   <!-- Thêm / sửa khoản chi -->
@@ -50,13 +50,14 @@
     <div class="sheet-handle"></div>
     <form id="txForm" autocomplete="off">
       <div class="sheet-head">
-        <h2><span id="sheetMascot" aria-hidden="true"></span><span id="sheetTitle">Thêm khoản chi</span></h2>
+        <span class="sheet-spacer"></span>
         <button type="button" class="icon-btn" id="sheetClose" aria-label="Đóng">✕</button>
       </div>
 
+      <div class="sheet-hero"><span id="sheetMascot" aria-hidden="true"></span><h2 id="sheetTitle">Thêm khoản chi</h2><p class="sheet-sub" id="sheetSub">Ghi lại một chút, nhẹ lòng hơn nhiều.</p></div>
       <div class="seg" role="radiogroup" aria-label="Loại">
-        <label><input type="radio" name="type" value="expense" checked><span>💸 Chi tiêu</span></label>
-        <label><input type="radio" name="type" value="saved"><span>💪 Nhịn được</span></label>
+        <label><input type="radio" name="type" value="expense" checked><span>Chi tiêu</span></label>
+        <label><input type="radio" name="type" value="saved"><span>Nhịn được</span></label>
       </div>
       <p class="hint" id="typeHint" hidden>Ghi lại món bạn định mua nhưng đã không mua / trả hàng – để thấy mình tiết kiệm được bao nhiêu.</p>
 
@@ -99,7 +100,7 @@
 
       <div class="sheet-actions">
         <button type="button" class="btn danger ghost" id="deleteBtn" hidden>Xoá</button>
-        <button type="submit" class="btn primary grow" id="saveBtn">Lưu</button>
+        <button type="submit" class="btn primary grow" id="saveBtn">Lưu khoản này</button>
       </div>
     </form>
   </section>

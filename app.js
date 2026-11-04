@@ -63,44 +63,41 @@
   /* ================= Mascot: bé Mầm ================= */
   /** mood: happy | ok | worried | shocked | sleepy | proud */
   function mascot(mood, cls) {
-    var ink = '#4a4636', body = '#f3ead2', leaf = '#9bb97c', leaf2 = '#5e7d63', cheek = '#f2b9a0', coin = '#e2b65a';
-    var droop = mood === 'shocked' || mood === 'worried';
+    var ink = '#4b4237', body = '#f4ecd6', shade = '#e7dbbd', leaf = '#9bb97c', leaf2 = '#6f8f5e', cheek = '#f2b3a0', heart = '#ef9f8a', coin = '#e2b65a';
+    var droop = mood === 'worried' || mood === 'shocked';
+    var sw = 'stroke="' + ink + '" stroke-linecap="round" stroke-linejoin="round"';
     var s = '<svg class="' + (cls || '') + '" viewBox="0 0 120 120" aria-hidden="true" focusable="false">';
-    s += '<ellipse cx="60" cy="112" rx="30" ry="4" fill="rgba(0,0,0,.08)"/>';
-    // lá mầm
-    s += '<g stroke="' + ink + '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">';
-    s += '<path d="M60 40 Q59 31 60 24" fill="none"/>';
-    s += '<g transform="rotate(' + (droop ? -28 : 0) + ' 60 26)"><path d="M60 27 C50 14 35 16 31 25 C39 34 52 33 60 27Z" fill="' + leaf + '"/><path d="M58 26 Q46 24 37 25" fill="none" stroke-width="1.6"/></g>';
-    s += '<g transform="rotate(' + (droop ? 28 : 0) + ' 60 26)"><path d="M60 25 C68 10 84 10 90 18 C84 29 70 31 60 25Z" fill="' + leaf2 + '"/><path d="M62 24 Q74 19 84 18" fill="none" stroke-width="1.6"/></g>';
-    s += '</g>';
-    // thân
-    s += '<path d="M22 75 C22 51 40 39 60 39 C80 39 98 51 98 75 C98 97 82 107 60 107 C38 107 22 97 22 75Z" fill="' + body + '" stroke="' + ink + '" stroke-width="2.6"/>';
-    s += '<ellipse cx="47" cy="107" rx="7" ry="4" fill="' + body + '" stroke="' + ink + '" stroke-width="2.4"/><ellipse cx="73" cy="107" rx="7" ry="4" fill="' + body + '" stroke="' + ink + '" stroke-width="2.4"/>';
-    s += '<ellipse cx="38" cy="82" rx="6.5" ry="4" fill="' + cheek + '"/><ellipse cx="82" cy="82" rx="6.5" ry="4" fill="' + cheek + '"/>';
-    // mắt
-    var g = '<g stroke="' + ink + '" stroke-width="2.6" stroke-linecap="round" fill="none">';
-    if (mood === 'happy' || mood === 'proud') s += g + '<path d="M39 72 Q44 65 49 72"/><path d="M71 72 Q76 65 81 72"/></g>';
-    else if (mood === 'sleepy') s += g + '<path d="M39 72 Q44 76 49 72"/><path d="M71 72 Q76 76 81 72"/></g>';
-    else if (mood === 'shocked') s += '<circle cx="44" cy="71" r="7" fill="#fff" stroke="' + ink + '" stroke-width="2.4"/><circle cx="76" cy="71" r="7" fill="#fff" stroke="' + ink + '" stroke-width="2.4"/><circle cx="44" cy="72" r="3" fill="' + ink + '"/><circle cx="76" cy="72" r="3" fill="' + ink + '"/>';
+    s += '<ellipse cx="60" cy="113" rx="30" ry="3.5" fill="rgba(75,66,55,.12)"/>';
+    s += '<path d="M60 34 Q61 26 59 18" fill="none" ' + sw + ' stroke-width="2.2"/>';
+    s += '<g transform="rotate(' + (droop ? -22 : 0) + ' 59 21)"><path d="M59 21 C50 11 38 12 35 19 C42 27 53 27 59 21Z" fill="' + leaf + '" ' + sw + ' stroke-width="2"/></g>';
+    s += '<g transform="rotate(' + (droop ? 22 : 0) + ' 60 19)"><path d="M60 19 C66 8 79 8 84 14 C79 23 68 25 60 19Z" fill="' + leaf2 + '" ' + sw + ' stroke-width="2"/></g>';
+    s += '<path d="M60 32 C43 32 33 50 30 71 C27 95 41 110 60 110 C79 110 93 95 90 71 C87 50 77 32 60 32Z" fill="' + body + '" ' + sw + ' stroke-width="2.4"/>';
+    s += '<path d="M79 46 C87 58 90 78 84 96 C80 103 74 107 68 108 C80 100 86 84 84 66 C83 57 81 51 79 46Z" fill="' + shade + '"/>';
+    s += '<ellipse cx="43" cy="80" rx="6" ry="3.6" fill="' + cheek + '" opacity=".85"/><ellipse cx="77" cy="80" rx="6" ry="3.6" fill="' + cheek + '" opacity=".85"/>';
+    var g = '<g fill="none" ' + sw + ' stroke-width="2.4">';
+    if (mood === 'happy' || mood === 'proud') s += g + '<path d="M40 72 Q45 67 50 72"/><path d="M70 72 Q75 67 80 72"/></g>';
+    else if (mood === 'sleepy') s += g + '<path d="M40 72 Q45 76 50 72"/><path d="M70 72 Q75 76 80 72"/></g>';
+    else if (mood === 'shocked') s += '<circle cx="45" cy="71" r="4.5" fill="#fff" ' + sw + ' stroke-width="2"/><circle cx="75" cy="71" r="4.5" fill="#fff" ' + sw + ' stroke-width="2"/><circle cx="45" cy="72" r="2" fill="' + ink + '"/><circle cx="75" cy="72" r="2" fill="' + ink + '"/>';
     else {
-      s += '<circle cx="44" cy="71" r="4" fill="' + ink + '"/><circle cx="76" cy="71" r="4" fill="' + ink + '"/><circle cx="45.4" cy="69.6" r="1.3" fill="#fff"/><circle cx="77.4" cy="69.6" r="1.3" fill="#fff"/>';
-      if (mood === 'worried') s += g.replace('2.6', '2.2') + '<path d="M37 62 L49 65"/><path d="M83 62 L71 65"/></g>';
+      s += '<circle cx="45" cy="71" r="2.8" fill="' + ink + '"/><circle cx="75" cy="71" r="2.8" fill="' + ink + '"/>';
+      if (mood === 'worried') s += g.replace('2.4', '2') + '<path d="M39 64 L49 66"/><path d="M81 64 L71 66"/></g>';
     }
-    // miệng
-    if (mood === 'happy' || mood === 'proud') s += '<path d="M53 81 Q60 92 67 81Z" fill="#e08f78" stroke="' + ink + '" stroke-width="2.6" stroke-linejoin="round"/>';
-    else if (mood === 'ok') s += '<path d="M54 82 Q60 87 66 82" fill="none" stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round"/>';
-    else if (mood === 'worried') s += '<path d="M53 86 Q56.5 82 60 86 Q63.5 90 67 86" fill="none" stroke="' + ink + '" stroke-width="2.8" stroke-linecap="round"/>';
-    else if (mood === 'shocked') s += '<ellipse cx="60" cy="88" rx="5" ry="6" fill="' + ink + '"/>';
-    else s += '<ellipse cx="60" cy="85" rx="3" ry="2.4" fill="' + ink + '"/>';
-    // tay + đồng xu
-    s += '<g stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M26 86 Q19 89 22 96"/>' + (mood === 'proud' ? '<path d="M94 80 Q102 70 98 62"/>' : '<path d="M93 86 Q97 84 99 88"/>') + '</g>';
-    var cx = mood === 'proud' ? 100 : 100, cy = mood === 'proud' ? 54 : 91;
-    s += '<circle cx="' + cx + '" cy="' + cy + '" r="12" fill="' + coin + '" stroke="' + ink + '" stroke-width="2.4"/><circle cx="' + cx + '" cy="' + cy + '" r="7.5" fill="none" stroke="' + ink + '" stroke-width="1.5"/>';
-    s += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="11" font-weight="800" font-family="Arial, sans-serif" fill="' + ink + '">đ</text>';
-    // chi tiết theo cảm xúc
-    if (mood === 'worried') s += '<path d="M93 50 Q99 58 96 62 Q91 64 90 58 Q90 54 93 50Z" fill="#9fd8f5" stroke="' + ink + '" stroke-width="2"/>';
-    if (mood === 'shocked') s += '<g stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round"><path d="M14 46 L20 54"/><path d="M8 60 L17 62"/><path d="M106 40 L100 49"/></g>';
-    if (mood === 'sleepy') s += '<text x="88" y="44" font-size="16" font-weight="800" font-family="Arial, sans-serif" fill="' + ink + '">z</text><text x="99" y="32" font-size="11" font-weight="800" font-family="Arial, sans-serif" fill="' + ink + '">z</text>';
+    if (mood === 'happy' || mood === 'ok') s += '<path d="M55 81 Q60 86 65 81" fill="none" ' + sw + ' stroke-width="2.2"/>';
+    else if (mood === 'proud') s += '<path d="M54 80 Q60 89 66 80Z" fill="#e08f78" ' + sw + ' stroke-width="2"/>';
+    else if (mood === 'worried') s += '<path d="M54 84 Q57 81 60 84 Q63 87 66 84" fill="none" ' + sw + ' stroke-width="2"/>';
+    else if (mood === 'shocked') s += '<ellipse cx="60" cy="85" rx="3.5" ry="4.5" fill="' + ink + '"/>';
+    else s += '<ellipse cx="60" cy="83" rx="2.4" ry="2" fill="' + ink + '"/>';
+    if (mood === 'sleepy') {
+      s += '<g fill="none" ' + sw + ' stroke-width="2.2"><path d="M38 94 Q46 98 52 96"/><path d="M82 94 Q74 98 68 96"/></g>';
+      s += '<text x="86" y="44" font-family="Caveat, cursive" font-size="16" font-weight="700" fill="' + ink + '">z</text><text x="96" y="34" font-family="Caveat, cursive" font-size="12" font-weight="700" fill="' + ink + '">z</text>';
+    } else if (mood === 'proud' || mood === 'worried' || mood === 'shocked') {
+      s += '<circle cx="60" cy="96" r="10" fill="' + coin + '" ' + sw + ' stroke-width="2"/><circle cx="60" cy="96" r="6.3" fill="none" ' + sw + ' stroke-width="1.3"/>';
+      s += '<g fill="none" ' + sw + ' stroke-width="2.2"><path d="M37 90 Q44 95 51 94"/><path d="M83 90 Q76 95 69 94"/></g>';
+    } else {
+      s += '<path d="M60 105 C49 98 45 93 47 88.5 C49 84.5 55 84.5 60 90 C65 84.5 71 84.5 73 88.5 C75 93 71 98 60 105Z" fill="' + heart + '" ' + sw + ' stroke-width="2"/>';
+      s += '<g fill="none" ' + sw + ' stroke-width="2.2"><path d="M36 88 Q42 94 48 92"/><path d="M84 88 Q78 94 72 92"/></g>';
+    }
+    if (mood === 'worried') s += '<path d="M90 52 Q95 59 93 62 Q89 64 88 59 Q88 56 90 52Z" fill="#a9d3ea" ' + sw + ' stroke-width="1.5"/>';
     return s + '</svg>';
   }
 
@@ -355,49 +352,91 @@
     return '<div class="progress ' + (st || '') + '" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(pct) + '"><span style="width:' + pct.toFixed(1) + '%"></span></div>';
   }
 
+  var REMINDERS = [
+    'Không cần hoàn hảo. Chỉ cần ghi lại từng khoản là bạn đã tiến bộ rồi.',
+    'Thứ bạn không mua hôm nay là món quà cho bạn của ngày mai.',
+    'Tiết kiệm là một cách tử tế với chính mình.',
+    'Hôm nay lỡ tay cũng không sao, ngày mai mình cân lại nhẹ nhàng.',
+    'Nhìn rõ tiền đi đâu là bước đầu tiên để giữ được nó.',
+    'Mua ít đi một chút, sống thong thả hơn nhiều.',
+    'Một ly cà phê ở nhà cũng thơm như ngoài quán, nếu mình pha bằng sự kiên nhẫn.',
+    'Từng bước nhỏ vẫn đưa bạn đi xa.',
+    'Trước khi mua, thử đợi 24 giờ xem mình còn muốn không nhé.'
+  ];
+  function reminderOfDay() {
+    var d = new Date(), k = d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
+    return REMINDERS[k % REMINDERS.length];
+  }
+  function greetWord() {
+    var h = new Date().getHours();
+    return h < 11 ? 'Chào buổi sáng,' : h < 14 ? 'Chào buổi trưa,' : h < 18 ? 'Chào buổi chiều,' : 'Chào buổi tối,';
+  }
+
+  /* Minh hoạ nhỏ (SVG) */
+  var ART = {
+    leaf: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 25 C7 13 15 6 26 6 C26 17 19 25 7 25Z" fill="#9bb97c" stroke="#4b4237" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 24 C13 18 17 14 22 10" fill="none" stroke="#4b4237" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    wallet: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="5" y="10" width="26" height="19" rx="5" fill="#f2b9a0" stroke="#4b4237" stroke-width="1.6"/><path d="M8 10 L23 5 Q26 4 26.5 7 L27 10" fill="#fbe6da" stroke="#4b4237" stroke-width="1.6" stroke-linejoin="round"/><rect x="21" y="16" width="10" height="7" rx="3.5" fill="#fffaf1" stroke="#4b4237" stroke-width="1.6"/><circle cx="25" cy="19.5" r="1.4" fill="#4b4237"/></svg>',
+    jar: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 9 V4" stroke="#4b4237" stroke-width="1.4" stroke-linecap="round"/><path d="M18 5 C15 2 11 3 11 5 C13 7 16 7 18 5Z M18 5 C21 1 25 2 25.5 4 C23 7 20 7 18 5Z" fill="#9bb97c" stroke="#4b4237" stroke-width="1.2"/><rect x="12" y="8" width="12" height="4" rx="1.5" fill="#e8dcbf" stroke="#4b4237" stroke-width="1.5"/><path d="M11 12 H25 Q29 15 29 22 V27 Q29 32 24 32 H12 Q7 32 7 27 V22 Q7 15 11 12Z" fill="#fffaf1" fill-opacity=".7" stroke="#4b4237" stroke-width="1.6"/><circle cx="14" cy="27" r="3.2" fill="#e2b65a" stroke="#4b4237" stroke-width="1.2"/><circle cx="21" cy="27.5" r="3.2" fill="#e2b65a" stroke="#4b4237" stroke-width="1.2"/><circle cx="17.5" cy="22.5" r="3.2" fill="#e2b65a" stroke="#4b4237" stroke-width="1.2"/></svg>',
+    chart: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="18" width="6" height="12" rx="2.5" fill="#cfdcbf" stroke="#4b4237" stroke-width="1.5"/><rect x="15" y="11" width="6" height="19" rx="2.5" fill="#9bb97c" stroke="#4b4237" stroke-width="1.5"/><rect x="24" y="6" width="6" height="24" rx="2.5" fill="#6f8f5e" stroke="#4b4237" stroke-width="1.5"/></svg>',
+    target: '<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="17" cy="19" r="12" fill="#fffaf1" stroke="#4b4237" stroke-width="1.6"/><circle cx="17" cy="19" r="7.5" fill="#b9bfe0" stroke="#4b4237" stroke-width="1.4"/><circle cx="17" cy="19" r="3" fill="#ef9f8a" stroke="#4b4237" stroke-width="1.3"/><path d="M17 19 L29 7" stroke="#4b4237" stroke-width="1.6" stroke-linecap="round"/><path d="M26 6 L30 6 L30 10" fill="none" stroke="#4b4237" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    heart: '<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 23 C6 17 3 13 4.5 9.5 C6 6 10.5 6 14 10 C17.5 6 22 6 23.5 9.5 C25 13 22 17 14 23Z" fill="none" stroke="#5d7a60" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+    sun: '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="6" fill="#e2b65a" stroke="#4b4237" stroke-width="1.5"/><g stroke="#e2b65a" stroke-width="2.2" stroke-linecap="round"><path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.8 6.8l2.8 2.8M22.4 22.4l2.8 2.8M6.8 25.2l2.8-2.8M22.4 9.6l2.8-2.8"/></g></svg>',
+    moon: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M21 5 A11 11 0 1 0 27 21 A9 9 0 0 1 21 5Z" fill="#b9bfe0" stroke="#4b4237" stroke-width="1.5" stroke-linejoin="round"/><circle cx="24" cy="9" r="1.2" fill="#e2b65a"/></svg>'
+  };
+
   function viewToday() {
     var s = monthSnapshot();
     var html = '';
     var todayLeft = s.allowance - s.dailyToday;
     var tSt = s.allowance ? budgetStatus(s.dailyToday, s.allowance) : (s.dailyToday > 0 ? 'over' : 'warn');
-    var mood = !s.spentToday ? 'happy' : tSt === 'over' ? 'shocked' : tSt === 'warn' ? 'worried' : 'ok';
-    var say = !s.budget ? 'Đặt ngân sách tháng ở Cài đặt để mình nhắc bạn nhé!'
-      : !s.allowance ? 'Ngân sách sinh hoạt tháng này đã hết – hạn chế chi thêm nhé.'
-      : !s.spentToday ? 'Một ngày chưa chi đồng nào – tuyệt vời.'
-      : tSt === 'over' ? 'Hôm nay đã vượt mức. Ngày mai mình cân lại nhé.'
-      : tSt === 'warn' ? 'Sắp chạm mức của hôm nay rồi.'
-      : 'Vẫn trong mức – cứ giữ nhịp này.';
-    html += '<section class="card hero"><div class="hero-row"><div>' +
-      '<div class="label">Hôm nay đã chi</div>' +
-      '<div class="big num">' + money(s.spentToday) + '</div></div>' + mascot(mood, 'hero-mascot') + '</div>' +
-      (s.budget ? progress(s.dailyToday, s.allowance, tSt) +
-        '<div class="budget-sub"><span>' + (todayLeft >= 0 ? 'Còn được chi hôm nay: <b class="num">' + money(todayLeft) + '</b>' : 'Vượt mức hôm nay: <b class="num">' + money(-todayLeft) + '</b>') + '</span>' +
-        '<span class="status ' + tSt + '">' + statusLabel(tSt) + '</span></div>' +
-        (s.allowance ? '<div class="help">Mức chi mỗi ngày: <b class="num">' + money(s.allowance) + '</b> (= tiền sinh hoạt còn lại ÷ ' + s.daysLeft + ' ngày còn lại)</div>'
-          : '<div class="help">⚠ Đã dùng hết ngân sách sinh hoạt của tháng này – mọi khoản chi thêm đều là vượt.</div>') : '') +
-      '<div class="hero-note">“' + say + '”</div>' +
-      '</section>';
+    var mood = !s.spentToday ? 'happy' : tSt === 'over' ? 'worried' : tSt === 'warn' ? 'ok' : 'happy';
+    var head = !s.spentToday ? 'Hôm nay chưa chi đồng nào.' : 'Hôm nay bạn đã chi <span class="num">' + money(s.spentToday) + '</span>.';
+    var sub = !s.budget ? 'Đặt ngân sách tháng để mình đồng hành cùng bạn nhé.'
+      : !s.allowance ? 'Ngân sách sinh hoạt tháng này đã hết – mình chậm lại một chút nhé.'
+      : todayLeft >= 0 ? 'Bạn vẫn còn <b class="num">' + money(todayLeft) + '</b> cho hôm nay.'
+      : 'Đã quá mức hôm nay <b class="num">' + money(-todayLeft) + '</b>. Không sao, mai mình cân lại.';
+    var note = !s.spentToday ? 'giỏi quá ♡' : tSt === 'over' ? 'từ từ thôi ♡' : 'từng bước nhỏ ♡';
+    html += '<section class="greet"><div class="greet-text"><div class="greet-hi">' + greetWord() + '</div><h1 class="greet-h">' + head + '</h1><p class="greet-sub">' + sub + '</p></div>' +
+      mascot(mood, 'greet-mascot') + '<span class="hand" aria-hidden="true">' + note + '</span></section>';
 
-    if (s.budget) html += stampCard(s);
+    // Thẻ chính: mức chi hôm nay
+    if (s.budget) {
+      html += '<div class="hero-wrap"><button type="button" class="soft-card" data-go="report"><span class="sc-ic">' + ART.leaf + '</span>' +
+        '<span class="sc-t"><b>Mức chi mỗi ngày: <span class="num">' + money(s.allowance) + '</span></b><span>' +
+        (s.allowance ? 'Tiền sinh hoạt còn lại ÷ ' + s.daysLeft + ' ngày còn lại' : 'Đã dùng hết tiền sinh hoạt của tháng') + '</span></span><span class="chev">›</span></button>' +
+        progress(s.dailyToday, s.allowance, tSt) +
+        '<div class="budget-sub"><span>Hôm nay đã dùng <b class="num">' + money(s.dailyToday) + '</b></span><span class="status ' + tSt + '">' + statusLabel(tSt) + '</span></div></div>';
+    }
 
-    var mSt = budgetStatus(s.spent, s.budget);
-    html += '<section class="card"><div class="card-head"><h3>Tháng ' + (s.m + 1) + '/' + s.y + '</h3>' +
-      (s.budget ? '<span class="status ' + mSt + '">' + statusLabel(mSt) + '</span>' : '') + '</div>' +
-      '<div class="stat-row">' +
-      '<div class="stat"><div class="k">Đã chi</div><div class="v num">' + money(s.spent) + '</div><div class="s">' + (s.budget ? Math.round(s.spent / s.budget * 100) + '% ngân sách' : 'Chưa đặt ngân sách') + '</div></div>' +
-      '<div class="stat"><div class="k">' + (s.remaining >= 0 ? 'Còn lại' : 'Vượt') + '</div><div class="v num">' + money(Math.abs(s.remaining)) + '</div><div class="s">' + s.daysLeft + ' ngày nữa hết tháng</div></div>' +
-      '</div>' + (s.budget ? progress(s.spent, s.budget, mSt) : '') +
-      (s.saved ? '<div class="help">💪 Đã nhịn được <b class="num">' + money(s.saved) + '</b> tháng này</div>' : '') +
-      '</section>';
+    // Ô truy cập nhanh
+    html += '<div class="quick">' +
+      '<button type="button" class="q-peach" data-quick="add">' + ART.wallet + 'Ghi chi</button>' +
+      '<button type="button" class="q-sage" data-quick="saved">' + ART.jar + 'Nhịn được</button>' +
+      '<button type="button" class="q-mustard" data-go="report">' + ART.chart + 'Báo cáo</button>' +
+      '<button type="button" class="q-lavender" data-go="settings" data-anchor="budgets">' + ART.target + 'Hạn mức</button></div>';
+
+    // Lời nhắn hôm nay
+    html += '<div class="sec-head"><h3>Lời nhắn hôm nay</h3></div><div class="reminder"><p>“' + esc(reminderOfDay()) + '”</p>' + ART.heart + '</div>';
+
+    // Dành cho bạn
+    var wk = weekData(s);
+    var mPct = s.budget ? Math.round(s.spent / s.budget * 100) : 0;
+    html += '<div class="sec-head"><h3>Dành cho bạn</h3><button class="link" data-go="report">Xem báo cáo</button></div><div class="fy">' +
+      '<button type="button" class="fy-card q-peach" data-go="report">' + ART.sun + '<span class="fy-k">Tuần này</span><span class="fy-v">' + wk.got + '/' + wk.past + '</span><span class="fy-s">ngày giữ mức</span></button>' +
+      '<button type="button" class="fy-card q-lavender" data-go="report">' + ART.moon + '<span class="fy-k">Tháng ' + (s.m + 1) + '</span><span class="fy-v">' + (s.budget ? mPct + '%' : compact(s.spent)) + '</span><span class="fy-s">' + (s.budget ? compact(s.spent) + ' / ' + compact(s.budget) : 'đã chi') + '</span></button>' +
+      '<button type="button" class="fy-card q-sage" data-go="history">' + ART.jar + '<span class="fy-k">Nhịn được</span><span class="fy-v">' + compact(s.saved) + '</span><span class="fy-s">tháng này</span></button></div>';
 
     if (s.budget && s.day >= 3 && s.projected > s.budget * 1.02) {
-      html += '<div class="alert over" role="note"><span class="a-ic">!</span><span>Với tốc độ hiện tại, cuối tháng bạn sẽ chi khoảng <b class="num">' + money(s.projected) +
-        '</b> – vượt ngân sách <b class="num">' + money(s.projected - s.budget) + '</b>.' + (s.allowance ? ' Hãy giữ mức ≤ <b class="num">' + money(s.allowance) + '</b>/ngày.' : '') + '</span></div>';
+      html += '<div class="alert over" role="note"><span class="a-ic">!</span><span>Với nhịp hiện tại, cuối tháng có thể chi khoảng <b class="num">' + money(s.projected) +
+        '</b> – vượt ngân sách <b class="num">' + money(s.projected - s.budget) + '</b>.</span></div>';
     }
+
+    if (s.budget) html += '<section class="card"><div class="card-head"><h3>Chuỗi giữ mức tuần này</h3><span class="tag gold">' + wk.got + '/' + wk.past + ' ngày</span></div>' + wk.html +
+      '<div class="stamp-sum">Ngày giữ mức: chi sinh hoạt ≤ <b class="num">' + compact(s.dailyBase) + '</b> (không tính khoản cố định).</div></section>';
 
     var rows = budgetRows(s.monthTx);
     if (rows.length) {
-      html += '<section class="card"><div class="card-head"><h3>Hạn mức tháng này</h3><button class="link" data-go="settings" data-anchor="budgets">Sửa</button></div>';
+      html += '<section class="card"><div class="card-head"><h3>Hạn mức tháng ' + (s.m + 1) + '</h3><button class="link" data-go="settings" data-anchor="budgets">Sửa</button></div>';
       rows.forEach(function (r) {
         var left = (+r.b.limit) - r.spent;
         html += '<div class="budget-item"><div class="budget-top"><span class="name">' + esc(r.b.name) + '</span><span class="num">' + compact(r.spent) + ' / ' + compact(+r.b.limit) + '</span></div>' +
@@ -410,34 +449,32 @@
     var todayList = state.tx.filter(function (t) { return t.date === today(); }).sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
     html += '<section class="card"><div class="card-head"><h3>Khoản chi hôm nay</h3>' + (todayList.length ? '<span class="subtitle">' + todayList.length + ' khoản</span>' : '') + '</div>';
     if (todayList.length) html += '<ul class="tx-list">' + todayList.map(function (t) { return txItem(t, false); }).join('') + '</ul>';
-    else html += '<div class="empty">' + mascot('sleepy', 'e-mascot') + 'Chưa có khoản chi nào hôm nay.<br>Bấm <b>+</b> để ghi lại nhé.</div>';
+    else html += '<div class="empty">' + mascot('sleepy', 'e-mascot') + 'Chưa có khoản nào hôm nay.<br>Bấm <b>Ghi</b> ở dưới để thêm nhé.</div>';
     html += '</section>';
 
     if (!state.tx.length) {
-      html += '<section class="card"><h3>Bắt đầu</h3><p class="help">Kết nối Google Sheet của bạn ở <b>Cài đặt</b> để nhập toàn bộ dữ liệu cũ và lưu mọi khoản chi vào sheet. Hoặc thử app với dữ liệu mẫu.</p>' +
+      html += '<section class="card"><h3>Bắt đầu nhẹ nhàng</h3><p class="help">Kết nối Google Sheet ở <b>Cài đặt</b> để mang toàn bộ dữ liệu cũ vào app. Hoặc thử app với dữ liệu mẫu trước.</p>' +
         '<div class="btn-row"><button class="btn primary" data-go="settings">Kết nối Google Sheet</button><button class="btn" id="demoBtn">Dùng thử dữ liệu mẫu</button></div></section>';
     }
     return html;
   }
 
-  /** Thẻ "con dấu" tuần: ngày nào chi sinh hoạt ≤ mức trung bình/ngày thì được 1 con dấu lá */
-  function stampCard(s) {
+  /** Chuỗi giữ mức tuần: ngày nào chi sinh hoạt ≤ mức trung bình/ngày là giữ mức */
+  function weekData(s) {
     var now = new Date(), dow = (now.getDay() + 6) % 7, t = today();
     var html = '', got = 0, past = 0;
     for (var i = 0; i < 7; i++) {
       var d = addDays(now, i - dow), ds = ymd(d);
       var spent = sum(state.tx.filter(function (x) { return x.date === ds && x.type !== 'saved' && s.isDaily(x); }));
       var cls = '', ic = '';
-      if (ds > t) { cls = 'future'; ic = ''; }
-      else if (spent <= (ds === t && s.allowance ? Math.min(s.allowance, s.dailyBase) : ds === t ? 0 : s.dailyBase) || (ds === t && !spent)) { cls = 'ok'; ic = '✓'; if (ds < t) { got++; } }
+      if (ds > t) { cls = 'future'; }
+      else if (spent <= (ds === t && s.allowance ? Math.min(s.allowance, s.dailyBase) : ds === t ? 0 : s.dailyBase) || (ds === t && !spent)) { cls = 'ok'; ic = '✓'; if (ds < t) got++; }
       else { cls = 'over'; ic = '✕'; }
       if (ds < t) past++;
       if (ds === t) cls += ' today';
       html += '<div class="stamp ' + cls + '" title="' + DOW[d.getDay()] + ': ' + money(spent) + '"><span class="s-ic">' + ic + '</span>' + (ds === t ? 'Nay' : DOW[d.getDay()]) + '</div>';
     }
-    return '<section class="card"><div class="card-head"><h3>Chuỗi giữ mức tuần này</h3><span class="tag gold">' + got + '/' + past + ' ngày</span></div>' +
-      '<div class="stamps">' + html + '</div>' +
-      '<div class="stamp-sum">Ngày giữ mức: chi sinh hoạt ≤ <b class="num">' + compact(s.dailyBase) + '</b> (không tính khoản cố định).</div></section>';
+    return { html: '<div class="stamps">' + html + '</div>', got: got, past: past };
   }
 
   /* ---------- Report ---------- */
@@ -517,7 +554,7 @@
     var total = sum(list), prevTotal = sum(prevList);
     var savedList = savedIn(cur.from, cur.to), saved = sum(savedList);
     var t = today();
-    var html = '<div class="toolbar"><div class="pills" role="tablist">' +
+    var html = '<div class="page-head"><h1>Báo cáo</h1><p>Nhìn lại một chút để đi tiếp nhẹ nhàng hơn.</p></div><div class="toolbar"><div class="pills" role="tablist">' +
       [['week', 'Tuần'], ['month', 'Tháng'], ['year', 'Năm']].map(function (p) {
         return '<button role="tab" data-period="' + p[0] + '" class="' + (R.period === p[0] ? 'on' : '') + '" aria-selected="' + (R.period === p[0]) + '">' + p[1] + '</button>';
       }).join('') + '</div>' +
@@ -718,7 +755,7 @@
     var catNames = state.settings.categories.map(function (c) { return c.name; });
     Object.keys(catsUsed).forEach(function (c) { if (catNames.indexOf(c) < 0) catNames.push(c); });
 
-    var html = '<div class="filters"><input id="histQ" type="search" placeholder="Tìm ghi chú, hạng mục, số tiền…" value="' + esc(H.q) + '" aria-label="Tìm kiếm">' +
+    var html = '<div class="page-head"><h1>Lịch sử</h1><p>Mọi khoản bạn đã ghi, gọn gàng một chỗ.</p></div><div class="filters"><input id="histQ" type="search" placeholder="Tìm ghi chú, hạng mục, số tiền…" value="' + esc(H.q) + '" aria-label="Tìm kiếm">' +
       '<select id="histCat" aria-label="Lọc hạng mục"><option value="">Tất cả hạng mục</option>' +
       catNames.map(function (c) { return '<option' + (H.cat === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
       '<div class="pills" role="tablist" style="margin-bottom:6px">' + [['', 'Tất cả'], ['expense', 'Chi tiêu'], ['saved', '💪 Nhịn được']].map(function (p) {
@@ -747,7 +784,7 @@
   /* ---------- Settings ---------- */
   function viewSettings() {
     var S = state.settings, C = state.conn;
-    var html = '<section class="card" id="conn"><h3>🔗 Kết nối Google Sheet</h3>' +
+    var html = '<div class="page-head"><h1>Cài đặt</h1><p>Tuỳ chỉnh để app hợp với bạn hơn.</p></div><section class="card" id="conn"><h3>Kết nối Google Sheet</h3>' +
       (C.url ? '<p class="help">Trạng thái: <b>' + (state.syncError ? '⚠ ' + esc(state.syncError) : state.lastSync ? '✓ Đồng bộ lúc ' + new Date(state.lastSync).toLocaleString('vi-VN') : 'Chưa đồng bộ') + '</b>' +
         (state.queue.length ? ' · ' + state.queue.length + ' thay đổi chờ gửi' : '') + '</p>' :
         '<div class="help">Dữ liệu đang chỉ lưu trên máy này. Kết nối để lưu vào Google Sheet và dùng trên nhiều thiết bị:<ol>' +
@@ -762,7 +799,7 @@
       (C.url ? '<button class="btn" id="syncNow">Đồng bộ ngay</button><button class="btn" id="importOld">Nhập dữ liệu cũ từ tab "1. Chi tiêu"</button><button class="btn ghost danger" id="connRemove">Ngắt kết nối</button>' : '') +
       '</div></section>';
 
-    html += '<section class="card"><h3>💰 Ngân sách tháng</h3><label class="field"><span class="field-label">Tổng được chi mỗi tháng</span>' +
+    html += '<section class="card"><h3>Ngân sách tháng</h3><label class="field"><span class="field-label">Tổng được chi mỗi tháng</span>' +
       '<input id="monthlyBudget" inputmode="decimal" value="' + nf.format(+S.monthlyBudget || 0) + '"></label>' +
       '<p class="help">Gõ nhanh: 9tr, 9.000.000… App dùng số này để tính <b>mức được chi mỗi ngày</b>.</p>' +
       '<div class="field-label">Khoản cố định (không tính vào mức chi mỗi ngày)</div><div class="check-grid">' +
@@ -770,7 +807,7 @@
         return '<label><input type="checkbox" data-excl="' + esc(c.name) + '"' + ((S.excludeFromDaily || []).indexOf(c.name) >= 0 ? ' checked' : '') + '> ' + c.icon + ' ' + esc(c.name) + '</label>';
       }).join('') + '</div></section>';
 
-    html += '<section class="card" id="budgets"><div class="card-head"><h3>🎯 Hạn mức theo nhóm</h3><button class="link" id="addBudget">+ Thêm nhóm</button></div>' +
+    html += '<section class="card" id="budgets"><div class="card-head"><h3>Hạn mức theo nhóm</h3><button class="link" id="addBudget">+ Thêm nhóm</button></div>' +
       '<p class="help">Mỗi nhóm có thể gồm nhiều hạng mục (vd "Quần áo & mỹ phẩm"). App cảnh báo khi dùng ≥ 85%.</p>';
     (S.budgets || []).forEach(function (b, i) {
       html += '<div class="group-edit" data-bi="' + i + '"><div class="g-row">' +
@@ -784,7 +821,7 @@
     });
     html += '</section>';
 
-    html += '<section class="card"><div class="card-head"><h3>🗂 Hạng mục</h3><button class="link" id="addCat">+ Thêm</button></div>';
+    html += '<section class="card"><div class="card-head"><h3>Hạng mục</h3><button class="link" id="addCat">+ Thêm</button></div>';
     S.categories.forEach(function (c, i) {
       html += '<div class="cat-edit" data-ci="' + i + '"><input class="input emoji" data-cf="icon" value="' + esc(c.icon) + '" aria-label="Biểu tượng" maxlength="4">' +
         '<input class="input" data-cf="name" value="' + esc(c.name) + '" aria-label="Tên hạng mục">' +
@@ -792,7 +829,7 @@
     });
     html += '<p class="help">Đổi tên hạng mục sẽ đổi luôn các khoản chi cũ thuộc hạng mục đó.</p></section>';
 
-    html += '<section class="card"><h3>📦 Dữ liệu</h3><p class="help">' + state.tx.length + ' khoản trên máy này.</p><div class="btn-row">' +
+    html += '<section class="card"><h3>Dữ liệu</h3><p class="help">' + state.tx.length + ' khoản trên máy này.</p><div class="btn-row">' +
       '<button class="btn" id="exportCsv">Tải về CSV</button>' +
       (!state.conn.url ? '<button class="btn" id="demoBtn">Nạp dữ liệu mẫu</button>' : '') +
       '<button class="btn ghost danger" id="wipeLocal">Xoá dữ liệu trên máy này</button></div>' +
@@ -823,6 +860,8 @@
     $('#deleteBtn').hidden = !tx;
     $$('input[name=type]').forEach(function (r) { r.checked = r.value === form.type; });
     $('#typeHint').hidden = form.type !== 'saved';
+    $('#sheetMascot').innerHTML = mascot(form.type === 'saved' ? 'proud' : 'happy');
+    $('#sheetSub').textContent = form.type === 'saved' ? 'Một món không mua cũng đáng để ăn mừng.' : 'Ghi lại một chút, nhẹ lòng hơn nhiều.';
     renderCatGrid(tx && cats.every(function (c) { return c.name !== tx.category; }) ? cats.concat([{ name: tx.category, icon: '📦' }]) : cats);
     renderNotes();
     updatePreview();
@@ -938,7 +977,8 @@
     var t = e.target.closest('button, [data-tip]');
     if (!t) { hideTip(); return; }
     if (t.matches('.tabbar [data-view]')) return go(t.dataset.view);
-    if (t.id === 'fab') return openSheet(null);
+    if (t.id === 'fab' || t.dataset.quick === 'add') return openSheet(null);
+    if (t.dataset.quick === 'saved') { openSheet(null); form.type = 'saved'; $$('input[name=type]').forEach(function (r) { r.checked = r.value === 'saved'; }); $('#typeHint').hidden = false; $('#sheetTitle').textContent = 'Ghi khoản nhịn được'; $('#sheetMascot').innerHTML = mascot('proud'); $('#sheetSub').textContent = 'Một món không mua cũng đáng để ăn mừng.'; return; }
     if (t.dataset.go) return go(t.dataset.go, t.dataset.anchor);
     if (t.dataset.edit) { var tx = state.tx.filter(function (x) { return x.id === t.dataset.edit; })[0]; if (tx) openSheet(tx); return; }
     if (t.dataset.period) { state.report = { period: t.dataset.period, offset: 0 }; return render(); }
@@ -996,7 +1036,7 @@
 
   document.addEventListener('change', function (e) {
     var t = e.target;
-    if (t.name === 'type') { form.type = t.value; $('#typeHint').hidden = form.type !== 'saved'; $('#sheetTitle').textContent = state.editing ? 'Sửa khoản' : form.type === 'saved' ? 'Ghi khoản nhịn được' : 'Thêm khoản chi'; return; }
+    if (t.name === 'type') { form.type = t.value; $('#typeHint').hidden = form.type !== 'saved'; $('#sheetMascot').innerHTML = mascot(form.type === 'saved' ? 'proud' : 'happy'); $('#sheetSub').textContent = form.type === 'saved' ? 'Một món không mua cũng đáng để ăn mừng.' : 'Ghi lại một chút, nhẹ lòng hơn nhiều.'; $('#sheetTitle').textContent = state.editing ? 'Sửa khoản' : form.type === 'saved' ? 'Ghi khoản nhịn được' : 'Thêm khoản chi'; return; }
     if (t.id === 'histCat') { state.hist.cat = t.value; state.hist.limit = 40; return render(); }
     var s = settingsCopy();
     if (t.id === 'monthlyBudget') { s.monthlyBudget = parseAmountLoose(t.value); return saveSettings(s); }
@@ -1085,8 +1125,7 @@
 
   /* ================= Boot ================= */
   if (location.hash === '#add') { history.replaceState(null, '', location.pathname); setTimeout(function () { openSheet(null); }, 50); }
-  $('#brandMascot').innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#e4ebd9"/><path d="M20 30 V18" stroke="#3f5e4a" stroke-width="1.8" stroke-linecap="round"/><path d="M20 19 C15 12 10 13 9.5 17 C13 21 17 21 20 19Z" fill="#9bb97c"/><path d="M20 17 C24 9 30 10 31 14 C28 19 23 19.5 20 17Z" fill="#5e7d63"/><circle cx="27.5" cy="26" r="4" fill="#e2b65a"/></svg>';
-  $('#sheetMascot').innerHTML = mascot('proud');
+  $('#brandMascot').innerHTML = mascot('happy');
   render();
   if (state.conn.url) scheduleSync(0);
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () { /* ignore */ });
