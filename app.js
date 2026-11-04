@@ -933,7 +933,7 @@
   var toastTimer;
   function toast(msg, mood) {
     var el = $('#toast'); el.textContent = msg; el.classList.toggle('err', mood === 'worried' || mood === 'shocked'); el.hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.hidden = true; }, 2800);
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.hidden = true; }, Math.max(2800, msg.length * 55));
   }
   function showTip(target) {
     var parts = (target.getAttribute('data-tip') || '').split('|');
@@ -1125,7 +1125,10 @@
       toast('✓ Đã kết nối "' + j.name + '"');
       return sync();
     }).catch(function (e) {
-      toast('Không kết nối được: ' + e.message, 'worried');
+      var msg = e instanceof TypeError
+        ? 'Không gọi được Apps Script. Kiểm tra: Triển khai → Quản lý các lần triển khai → "Người có quyền truy cập" phải là "Bất kỳ ai", URL kết thúc bằng /exec.'
+        : e.message;
+      toast('Không kết nối được: ' + msg, 'worried');
     }).then(function () { render(); });
   }
 
