@@ -63,45 +63,44 @@
   /* ================= Mascot: bé Mầm ================= */
   /** mood: happy | ok | worried | shocked | sleepy | proud */
   function mascot(mood, cls) {
-    var ink = '#1e2b25', body = '#fff4d6', leaf = '#3fa372', leaf2 = '#1f6b4f', cheek = '#f4a7a0', coin = '#f6c944';
+    var ink = '#1f3a2e', body = '#fbf6ea', leaf = '#4f8f70', leaf2 = '#1f4d3a', cheek = '#ecb9ad', coin = '#d9bf86';
     var droop = mood === 'shocked' || mood === 'worried';
     var s = '<svg class="' + (cls || '') + '" viewBox="0 0 120 120" aria-hidden="true" focusable="false">';
-    s += '<ellipse cx="60" cy="112" rx="30" ry="4" fill="rgba(0,0,0,.13)"/>';
+    s += '<ellipse cx="60" cy="112" rx="30" ry="4" fill="rgba(0,0,0,.08)"/>';
     // lá mầm
-    s += '<g stroke="' + ink + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">';
+    s += '<g stroke="' + ink + '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">';
     s += '<path d="M60 40 Q59 31 60 24" fill="none"/>';
     s += '<g transform="rotate(' + (droop ? -28 : 0) + ' 60 26)"><path d="M60 27 C50 14 35 16 31 25 C39 34 52 33 60 27Z" fill="' + leaf + '"/><path d="M58 26 Q46 24 37 25" fill="none" stroke-width="1.6"/></g>';
     s += '<g transform="rotate(' + (droop ? 28 : 0) + ' 60 26)"><path d="M60 25 C68 10 84 10 90 18 C84 29 70 31 60 25Z" fill="' + leaf2 + '"/><path d="M62 24 Q74 19 84 18" fill="none" stroke-width="1.6"/></g>';
     s += '</g>';
     // thân
-    s += '<path d="M22 75 C22 51 40 39 60 39 C80 39 98 51 98 75 C98 97 82 107 60 107 C38 107 22 97 22 75Z" fill="' + body + '" stroke="' + ink + '" stroke-width="3.5"/>';
-    s += '<ellipse cx="47" cy="107" rx="7" ry="4" fill="' + body + '" stroke="' + ink + '" stroke-width="3"/><ellipse cx="73" cy="107" rx="7" ry="4" fill="' + body + '" stroke="' + ink + '" stroke-width="3"/>';
+    s += '<path d="M22 75 C22 51 40 39 60 39 C80 39 98 51 98 75 C98 97 82 107 60 107 C38 107 22 97 22 75Z" fill="' + body + '" stroke="' + ink + '" stroke-width="2.6"/>';
+    s += '<ellipse cx="47" cy="107" rx="7" ry="4" fill="' + body + '" stroke="' + ink + '" stroke-width="2.4"/><ellipse cx="73" cy="107" rx="7" ry="4" fill="' + body + '" stroke="' + ink + '" stroke-width="2.4"/>';
     s += '<ellipse cx="38" cy="82" rx="6.5" ry="4" fill="' + cheek + '"/><ellipse cx="82" cy="82" rx="6.5" ry="4" fill="' + cheek + '"/>';
     // mắt
-    var g = '<g stroke="' + ink + '" stroke-width="3.5" stroke-linecap="round" fill="none">';
+    var g = '<g stroke="' + ink + '" stroke-width="2.6" stroke-linecap="round" fill="none">';
     if (mood === 'happy' || mood === 'proud') s += g + '<path d="M39 72 Q44 65 49 72"/><path d="M71 72 Q76 65 81 72"/></g>';
     else if (mood === 'sleepy') s += g + '<path d="M39 72 Q44 76 49 72"/><path d="M71 72 Q76 76 81 72"/></g>';
-    else if (mood === 'shocked') s += '<circle cx="44" cy="71" r="7" fill="#fff" stroke="' + ink + '" stroke-width="3"/><circle cx="76" cy="71" r="7" fill="#fff" stroke="' + ink + '" stroke-width="3"/><circle cx="44" cy="72" r="3" fill="' + ink + '"/><circle cx="76" cy="72" r="3" fill="' + ink + '"/>';
+    else if (mood === 'shocked') s += '<circle cx="44" cy="71" r="7" fill="#fff" stroke="' + ink + '" stroke-width="2.4"/><circle cx="76" cy="71" r="7" fill="#fff" stroke="' + ink + '" stroke-width="2.4"/><circle cx="44" cy="72" r="3" fill="' + ink + '"/><circle cx="76" cy="72" r="3" fill="' + ink + '"/>';
     else {
       s += '<circle cx="44" cy="71" r="4" fill="' + ink + '"/><circle cx="76" cy="71" r="4" fill="' + ink + '"/><circle cx="45.4" cy="69.6" r="1.3" fill="#fff"/><circle cx="77.4" cy="69.6" r="1.3" fill="#fff"/>';
-      if (mood === 'worried') s += g.replace('3.5', '2.6') + '<path d="M37 62 L49 65"/><path d="M83 62 L71 65"/></g>';
+      if (mood === 'worried') s += g.replace('2.6', '2.2') + '<path d="M37 62 L49 65"/><path d="M83 62 L71 65"/></g>';
     }
     // miệng
-    if (mood === 'happy' || mood === 'proud') s += '<path d="M53 81 Q60 92 67 81Z" fill="#e2665e" stroke="' + ink + '" stroke-width="2.6" stroke-linejoin="round"/>';
-    else if (mood === 'ok') s += '<path d="M54 82 Q60 87 66 82" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>';
+    if (mood === 'happy' || mood === 'proud') s += '<path d="M53 81 Q60 92 67 81Z" fill="#d9776f" stroke="' + ink + '" stroke-width="2.6" stroke-linejoin="round"/>';
+    else if (mood === 'ok') s += '<path d="M54 82 Q60 87 66 82" fill="none" stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round"/>';
     else if (mood === 'worried') s += '<path d="M53 86 Q56.5 82 60 86 Q63.5 90 67 86" fill="none" stroke="' + ink + '" stroke-width="2.8" stroke-linecap="round"/>';
     else if (mood === 'shocked') s += '<ellipse cx="60" cy="88" rx="5" ry="6" fill="' + ink + '"/>';
     else s += '<ellipse cx="60" cy="85" rx="3" ry="2.4" fill="' + ink + '"/>';
     // tay + đồng xu
-    s += '<g stroke="' + ink + '" stroke-width="3" stroke-linecap="round" fill="none"><path d="M26 86 Q19 89 22 96"/>' + (mood === 'proud' ? '<path d="M94 80 Q102 70 98 62"/>' : '<path d="M93 86 Q97 84 99 88"/>') + '</g>';
+    s += '<g stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M26 86 Q19 89 22 96"/>' + (mood === 'proud' ? '<path d="M94 80 Q102 70 98 62"/>' : '<path d="M93 86 Q97 84 99 88"/>') + '</g>';
     var cx = mood === 'proud' ? 100 : 100, cy = mood === 'proud' ? 54 : 91;
-    s += '<circle cx="' + cx + '" cy="' + cy + '" r="12" fill="' + coin + '" stroke="' + ink + '" stroke-width="3"/><circle cx="' + cx + '" cy="' + cy + '" r="7.5" fill="none" stroke="' + ink + '" stroke-width="1.5"/>';
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="12" fill="' + coin + '" stroke="' + ink + '" stroke-width="2.4"/><circle cx="' + cx + '" cy="' + cy + '" r="7.5" fill="none" stroke="' + ink + '" stroke-width="1.5"/>';
     s += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="11" font-weight="800" font-family="Arial, sans-serif" fill="' + ink + '">đ</text>';
     // chi tiết theo cảm xúc
     if (mood === 'worried') s += '<path d="M93 50 Q99 58 96 62 Q91 64 90 58 Q90 54 93 50Z" fill="#9fd8f5" stroke="' + ink + '" stroke-width="2"/>';
-    if (mood === 'shocked') s += '<g stroke="' + ink + '" stroke-width="3" stroke-linecap="round"><path d="M14 46 L20 54"/><path d="M8 60 L17 62"/><path d="M106 40 L100 49"/></g>';
+    if (mood === 'shocked') s += '<g stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round"><path d="M14 46 L20 54"/><path d="M8 60 L17 62"/><path d="M106 40 L100 49"/></g>';
     if (mood === 'sleepy') s += '<text x="88" y="44" font-size="16" font-weight="800" font-family="Arial, sans-serif" fill="' + ink + '">z</text><text x="99" y="32" font-size="11" font-weight="800" font-family="Arial, sans-serif" fill="' + ink + '">z</text>';
-    if (mood === 'happy' || mood === 'proud') s += '<g fill="' + coin + '" stroke="' + ink + '" stroke-width="1.8" stroke-linejoin="round"><path d="M14 52 l3 -7 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3z"/></g>';
     return s + '</svg>';
   }
 
@@ -324,6 +323,7 @@
     renderSync();
     var now = new Date();
     $('#todayLabel').textContent = DOW_LONG[now.getDay()] + ', ' + pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear();
+    $('.app').classList.toggle('wide', state.view === 'report');
     $$('.tabbar [data-view]').forEach(function (b) { b.classList.toggle('active', b.dataset.view === state.view); });
     var html = ({ today: viewToday, report: viewReport, history: viewHistory, settings: viewSettings })[state.view]();
     var v = $('#view');
@@ -358,10 +358,11 @@
     var tSt = s.allowance ? budgetStatus(s.dailyToday, s.allowance) : (s.dailyToday > 0 ? 'over' : 'warn');
     var mood = !s.spentToday ? 'happy' : tSt === 'over' ? 'shocked' : tSt === 'warn' ? 'worried' : 'ok';
     var say = !s.budget ? 'Đặt ngân sách tháng ở Cài đặt để mình nhắc bạn nhé!'
-      : !s.spentToday ? 'Hôm nay chưa tiêu đồng nào, giỏi ghê! 🌱'
-      : tSt === 'over' ? 'Ối, hôm nay lố rồi! Mai mình tiết kiệm bù nha 🥺'
-      : tSt === 'warn' ? 'Sắp chạm mức hôm nay rồi, cẩn thận nha!'
-      : 'Vẫn trong mức, cứ thế phát huy nhé ✨';
+      : !s.allowance ? 'Ngân sách sinh hoạt tháng này đã hết – hạn chế chi thêm nhé.'
+      : !s.spentToday ? 'Một ngày chưa chi đồng nào – tuyệt vời.'
+      : tSt === 'over' ? 'Hôm nay đã vượt mức. Ngày mai mình cân lại nhé.'
+      : tSt === 'warn' ? 'Sắp chạm mức của hôm nay rồi.'
+      : 'Vẫn trong mức – cứ giữ nhịp này.';
     html += '<section class="card hero"><div class="hero-row"><div>' +
       '<div class="label">Hôm nay đã chi</div>' +
       '<div class="big num">' + money(s.spentToday) + '</div></div>' + mascot(mood, 'hero-mascot') + '</div>' +
@@ -370,7 +371,7 @@
         '<span class="status ' + tSt + '">' + statusLabel(tSt) + '</span></div>' +
         (s.allowance ? '<div class="help">Mức chi mỗi ngày: <b class="num">' + money(s.allowance) + '</b> (= tiền sinh hoạt còn lại ÷ ' + s.daysLeft + ' ngày còn lại)</div>'
           : '<div class="help">⚠ Đã dùng hết ngân sách sinh hoạt của tháng này – mọi khoản chi thêm đều là vượt.</div>') : '') +
-      '<div class="bubble">' + say + '</div>' +
+      '<div class="hero-note">“' + say + '”</div>' +
       '</section>';
 
     if (s.budget) html += stampCard(s);
@@ -386,7 +387,7 @@
       '</section>';
 
     if (s.budget && s.day >= 3 && s.projected > s.budget * 1.02) {
-      html += '<div class="alert over" role="note">' + mascot('worried', 'a-mascot') + '<span>Với tốc độ hiện tại, cuối tháng bạn sẽ chi khoảng <b class="num">' + money(s.projected) +
+      html += '<div class="alert over" role="note"><span class="a-ic">!</span><span>Với tốc độ hiện tại, cuối tháng bạn sẽ chi khoảng <b class="num">' + money(s.projected) +
         '</b> – vượt ngân sách <b class="num">' + money(s.projected - s.budget) + '</b>.' + (s.allowance ? ' Hãy giữ mức ≤ <b class="num">' + money(s.allowance) + '</b>/ngày.' : '') + '</span></div>';
     }
 
@@ -424,15 +425,15 @@
       var spent = sum(state.tx.filter(function (x) { return x.date === ds && x.type !== 'saved' && s.isDaily(x); }));
       var cls = '', ic = '';
       if (ds > t) { cls = 'future'; ic = ''; }
-      else if (spent <= (ds === t && s.allowance ? Math.min(s.allowance, s.dailyBase) : ds === t ? 0 : s.dailyBase) || (ds === t && !spent)) { cls = 'ok'; ic = ds === t ? '🌱' : '🍀'; if (ds < t) { got++; } }
-      else { cls = 'over'; ic = '💸'; }
+      else if (spent <= (ds === t && s.allowance ? Math.min(s.allowance, s.dailyBase) : ds === t ? 0 : s.dailyBase) || (ds === t && !spent)) { cls = 'ok'; ic = '✓'; if (ds < t) { got++; } }
+      else { cls = 'over'; ic = '✕'; }
       if (ds < t) past++;
       if (ds === t) cls += ' today';
       html += '<div class="stamp ' + cls + '" title="' + DOW[d.getDay()] + ': ' + money(spent) + '"><span class="s-ic">' + ic + '</span>' + (ds === t ? 'Nay' : DOW[d.getDay()]) + '</div>';
     }
-    return '<section class="card"><div class="card-head"><h3>Thẻ tích lá tuần này</h3><span class="tag green">' + got + '/' + past + ' ngày</span></div>' +
+    return '<section class="card"><div class="card-head"><h3>Chuỗi giữ mức tuần này</h3><span class="tag gold">' + got + '/' + past + ' ngày</span></div>' +
       '<div class="stamps">' + html + '</div>' +
-      '<div class="stamp-sum"><span>Ngày chi ≤ <b class="num">' + compact(s.dailyBase) + '</b> (không tính khoản cố định) được 1 lá 🍀</span></div></section>';
+      '<div class="stamp-sum">Ngày giữ mức: chi sinh hoạt ≤ <b class="num">' + compact(s.dailyBase) + '</b> (không tính khoản cố định).</div></section>';
   }
 
   /* ---------- Report ---------- */
@@ -506,11 +507,11 @@
   }
 
   function viewReport() {
-    var R = state.report;
+    var R = state.report, S = state.settings;
     var cur = periodRange(R.period, R.offset), prev = periodRange(R.period, R.offset - 1);
     var list = expenses(cur.from, cur.to), prevList = expenses(prev.from, prev.to);
     var total = sum(list), prevTotal = sum(prevList);
-    var saved = sum(savedIn(cur.from, cur.to));
+    var savedList = savedIn(cur.from, cur.to), saved = sum(savedList);
     var t = today();
     var html = '<div class="toolbar"><div class="pills" role="tablist">' +
       [['week', 'Tuần'], ['month', 'Tháng'], ['year', 'Năm']].map(function (p) {
@@ -519,33 +520,105 @@
       '<div class="period-nav"><button class="icon-btn" data-shift="-1" aria-label="Kỳ trước">‹</button><span class="lbl">' + esc(cur.label) + '</span>' +
       '<button class="icon-btn" data-shift="1" aria-label="Kỳ sau"' + (R.offset >= 0 ? ' disabled' : '') + '>›</button></div></div>';
 
-    // Số ngày đã trôi qua trong kỳ (để tính trung bình)
-    var elapsed;
+    // Số ngày trong kỳ và số ngày đã trôi qua
+    var periodDays, elapsed;
     if (R.period === 'year') {
-      var ys = new Date(cur.year, 0, 1), ye = cur.to < t ? new Date(cur.year, 11, 31) : new Date();
-      elapsed = Math.max(1, Math.round((ye - ys) / 864e5) + 1);
+      var ys = new Date(cur.year, 0, 1);
+      periodDays = Math.round((new Date(cur.year, 11, 31) - ys) / 864e5) + 1;
+      elapsed = cur.to < t ? periodDays : Math.max(1, Math.round((parseYmd(t) - ys) / 864e5) + 1);
     } else {
+      periodDays = cur.days;
       elapsed = cur.to < t ? cur.days : Math.max(1, Math.round((parseYmd(t) - parseYmd(cur.from)) / 864e5) + 1);
     }
+    var running = cur.to >= t;
     var prevLabel = R.period === 'week' ? 'tuần trước' : R.period === 'month' ? 'tháng trước' : 'năm trước';
-    // So sánh công bằng: kỳ đang chạy so với cùng số ngày của kỳ trước
     var prevComparable = prevTotal;
-    if (cur.to >= t && R.period !== 'year') {
+    if (running && R.period !== 'year') {
       var cutoff = ymd(addDays(parseYmd(prev.from), elapsed - 1));
       prevComparable = sum(prevList.filter(function (x) { return x.date <= cutoff; }));
-      prevLabel += ' (cùng ' + elapsed + ' ngày đầu)';
+      prevLabel += ' (cùng kỳ)';
     }
-    var rMood = !list.length ? 'sleepy' : prevComparable && total > prevComparable * 1.05 ? 'worried' : prevComparable && total < prevComparable * 0.95 ? 'happy' : 'ok';
-    html += '<section class="card hero"><div class="hero-row"><div><div class="label">Tổng chi ' + esc(cur.label.toLowerCase()) + '</div><div class="big num">' + money(total) + '</div></div>' + mascot(rMood, 'hero-mascot') + '</div>' +
-      deltaHtml(total, prevComparable, prevLabel) +
-      '<div class="stat-row" style="margin-top:12px">' +
-      '<div class="stat"><div class="k">Trung bình / ngày</div><div class="v num">' + money(total / elapsed) + '</div><div class="s">' + elapsed + ' ngày</div></div>' +
-      '<div class="stat"><div class="k">Số khoản chi</div><div class="v num">' + list.length + '</div><div class="s">TB ' + money(list.length ? total / list.length : 0) + '/khoản</div></div>' +
-      (R.period === 'month' && state.settings.monthlyBudget ? '<div class="stat"><div class="k">Ngân sách</div><div class="v num">' + money(+state.settings.monthlyBudget) + '</div><div class="s">' + (total <= state.settings.monthlyBudget ? 'Còn ' + money(state.settings.monthlyBudget - total) : 'Vượt ' + money(total - state.settings.monthlyBudget)) + '</div></div>' : '') +
-      '<div class="stat"><div class="k">💪 Nhịn được</div><div class="v num">' + money(saved) + '</div><div class="s">' + savedIn(cur.from, cur.to).length + ' lần</div></div>' +
-      '</div></section>';
+    // Ngân sách & hạn mức quy đổi theo kỳ: tuần = 7/số ngày tháng, năm = ×12
+    var factor = R.period === 'month' ? 1 : R.period === 'year' ? 12 : 7 / daysInMonth(cur.start.getFullYear(), cur.start.getMonth());
+    var budget = (+S.monthlyBudget || 0) * factor;
+    var used = budget ? total / budget : 0;
+    var bSt = budgetStatus(total, budget);
+    var paceFrac = running ? elapsed / periodDays : 1;
 
-    // Biểu đồ
+    // 1. KPI
+    html += '<div class="dash"><div class="kpis full">' +
+      '<div class="kpi main"><div class="k">Tổng chi tiêu</div><div class="row"><div class="v num">' + money(total) + '</div>' + deltaHtml(total, prevComparable, prevLabel) + '</div>' +
+      '<div class="s">' + list.length + ' khoản · trung bình ' + money(total / elapsed) + '/ngày</div></div>' +
+      '<div class="kpi"><div class="k">Ngân sách</div><div class="v num">' + (budget ? money(budget) : '—') + '</div><div class="s">' + (budget ? 'Đã dùng <b>' + Math.round(used * 100) + '%</b>' : 'Chưa đặt') + '</div></div>' +
+      '<div class="kpi"><div class="k">' + (total <= budget || !budget ? 'Còn lại' : 'Vượt') + '</div><div class="v num">' + (budget ? money(Math.abs(budget - total)) : '—') + '</div><div class="s">' + (budget ? '<span class="status ' + bSt + '">' + statusLabel(bSt) + '</span>' : '&nbsp;') + '</div></div>' +
+      '<div class="kpi"><div class="k">Nhịn được</div><div class="v num">' + money(saved) + '</div><div class="s">' + savedList.length + ' lần không mua</div></div>' +
+      '</div>';
+
+    // 2. Tổng chi so với ngân sách
+    if (budget) {
+      var scaleMax = Math.max(budget, total) * 1.04;
+      var projected = running && elapsed ? total / elapsed * periodDays : total;
+      html += '<section class="card full"><div class="card-head"><h3>Tổng chi so với ngân sách</h3><span class="status ' + bSt + '">' + statusLabel(bSt) + '</span></div>' +
+        '<div class="cmp-top"><span>Đã chi <b class="num">' + money(total) + '</b></span><span class="val num">' + money(budget) + ' <small>ngân sách</small></span></div>' +
+        '<div class="bullet big ' + bSt + '"><span class="fill" style="width:' + (total / scaleMax * 100).toFixed(1) + '%"></span>' +
+        '<span class="limit" style="left:' + (budget / scaleMax * 100).toFixed(1) + '%"></span>' +
+        (running ? '<span class="pace" style="left:' + (budget * paceFrac / scaleMax * 100).toFixed(1) + '%"></span>' : '') + '</div>' +
+        '<div class="cmp-sub"><span>Đã dùng ' + Math.round(used * 100) + '% ngân sách' + (running ? ' · đã qua ' + Math.round(paceFrac * 100) + '% thời gian' : '') + '</span>' +
+        (running ? '<span>Dự kiến cả kỳ: <b class="num">' + money(projected) + '</b></span>' : '') + '</div>' +
+        '<div class="legend-inline"><span><i class="lim"></i>Ngân sách</span>' + (running ? '<span><i class="pace"></i>Mức nên chi đến hôm nay</span>' : '') + '</div></section>';
+    }
+
+    // 3. So sánh với hạn mức
+    var groups = (S.budgets || []).map(function (b) {
+      var spent = sum(list.filter(function (x) { return b.cats.indexOf(x.category) >= 0; }));
+      var lim = (+b.limit || 0) * factor;
+      return { name: b.name, cats: b.cats, spent: spent, limit: lim, st: budgetStatus(spent, lim) };
+    });
+    var grouped = {};
+    (S.budgets || []).forEach(function (b) { b.cats.forEach(function (c) { grouped[c] = 1; }); });
+    var outside = list.filter(function (x) { return !grouped[x.category]; });
+    if (groups.length) {
+      html += '<section class="card"><div class="card-head"><h3>So sánh với hạn mức</h3><button class="link" data-go="settings" data-anchor="budgets">Sửa hạn mức</button></div>';
+      var gSpent = 0, gLimit = 0;
+      groups.sort(function (a, b) { return (b.limit ? b.spent / b.limit : 0) - (a.limit ? a.spent / a.limit : 0); }).forEach(function (g) {
+        gSpent += g.spent; gLimit += g.limit;
+        var mx = Math.max(g.limit, g.spent) || 1;
+        var pct = g.limit ? Math.round(g.spent / g.limit * 100) : 0;
+        var left = g.limit - g.spent;
+        html += '<div class="cmp-row"><div class="cmp-top"><span class="name">' + esc(g.name) + '</span><span class="val num">' + compact(g.spent) + ' <small>/ ' + compact(g.limit) + '</small></span></div>' +
+          '<div class="bullet ' + g.st + '"><span class="fill" style="width:' + (g.spent / mx * 100).toFixed(1) + '%"></span><span class="limit" style="left:calc(' + (g.limit / mx * 100).toFixed(1) + '% - 1px)"></span></div>' +
+          '<div class="cmp-sub"><span class="status ' + g.st + '">' + statusLabel(g.st) + ' · ' + pct + '%</span><span class="num">' + (left >= 0 ? 'còn ' + money(left) : 'vượt ' + money(-left)) + '</span></div></div>';
+      });
+      if (outside.length) {
+        html += '<div class="cmp-row"><div class="cmp-top"><span class="name">Ngoài hạn mức</span><span class="val num">' + compact(sum(outside)) + ' <small>không giới hạn</small></span></div>' +
+          '<div class="cmp-sub"><span class="cats">' + esc(byCategory(outside).map(function (c) { return c.name; }).join(', ')) + '</span></div></div>';
+      }
+      html += '<div class="cmp-total"><span>Tổng các nhóm</span><span class="num">' + money(gSpent) + ' / ' + money(gLimit) + '</span></div>' +
+        '<div class="legend-inline"><span><i class="lim"></i>Hạn mức</span><span>✓ dưới 85% · ⚠ 85–100% · ✕ vượt</span></div></section>';
+    }
+
+    // 4. Phân loại các khoản
+    var cats = byCategory(list), prevCats = {}, counts = {};
+    byCategory(prevList).forEach(function (c) { prevCats[c.name] = c.total; });
+    list.forEach(function (x) { counts[x.category] = (counts[x.category] || 0) + 1; });
+    html += '<section class="card"><div class="card-head"><h3>Phân loại chi tiêu</h3><span class="subtitle">' + cats.length + ' hạng mục</span></div>';
+    if (!cats.length) html += '<div class="empty">' + mascot('sleepy', 'e-mascot') + 'Không có khoản chi nào trong kỳ này.</div>';
+    else {
+      html += '<table class="cat-table"><thead><tr><th>Hạng mục</th><th>Số tiền</th><th>' + (running ? 'Tỷ trọng' : 'So kỳ trước') + '</th></tr></thead><tbody>';
+      cats.forEach(function (c) {
+        var pct = total ? c.total / total * 100 : 0;
+        var pv = prevCats[c.name] || 0;
+        var ch = pv ? Math.round((c.total - pv) / pv * 100) : null;
+        var third = running || ch === null ? Math.round(pct) + '%' : '<span class="delta ' + (ch > 0 ? 'up' : ch < 0 ? 'down' : 'flat') + '">' + (ch > 0 ? '▲ ' : ch < 0 ? '▼ ' : '') + Math.abs(ch) + '%</span>';
+        html += '<tr><td><div class="nm"><span class="ic">' + catIcon(c.name) + '</span><span style="flex:1;min-width:0">' + esc(c.name) + '<small>' + counts[c.name] + ' khoản · ' + Math.round(pct) + '%</small>' +
+          '<div class="share"><span style="width:' + pct.toFixed(1) + '%"></span></div></span></div></td>' +
+          '<td class="num">' + money(c.total) + '</td><td class="pct num">' + third + '</td></tr>';
+      });
+      html += '</tbody><tfoot><tr><td>Tổng</td><td class="num">' + money(total) + '</td><td class="pct">100%</td></tr></tfoot></table>';
+    }
+    html += '</section>';
+
+    // 5. Biểu đồ theo ngày / tháng
     var points = [], tableRows = [];
     if (R.period === 'year') {
       for (var mm = 0; mm < 12; mm++) {
@@ -558,52 +631,20 @@
       for (var i = 0; i < cur.days; i++) {
         var d = addDays(cur.start, i), ds = ymd(d);
         var dv = sum(list.filter(function (x) { return x.date === ds; }));
-        var lbl = R.period === 'week' ? DOW[d.getDay()] : String(d.getDate());
-        points.push({ label: lbl, value: dv, tip: DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '|' + money(dv), dim: ds > t, hl: ds === t });
+        points.push({ label: R.period === 'week' ? DOW[d.getDay()] : String(d.getDate()), value: dv, tip: DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '|' + money(dv), dim: ds > t, hl: ds === t });
         tableRows.push([DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1), dv]);
       }
     }
-    var ref = 0, refLabel = '';
-    if (state.settings.monthlyBudget) {
-      if (R.period === 'year') { ref = +state.settings.monthlyBudget; refLabel = 'Ngân sách/tháng'; }
-      else { ref = state.settings.monthlyBudget / (R.period === 'month' ? cur.days : daysInMonth(cur.start.getFullYear(), cur.start.getMonth())); refLabel = 'Mức TB/ngày ' + compact(ref); }
-    }
+    var ref = S.monthlyBudget ? (R.period === 'year' ? +S.monthlyBudget : S.monthlyBudget / daysInMonth(cur.start.getFullYear(), cur.start.getMonth())) : 0;
+    var refLabel = R.period === 'year' ? 'Ngân sách/tháng' : 'Mức TB/ngày ' + compact(ref);
     html += '<section class="card"><h3>' + (R.period === 'year' ? 'Chi theo tháng' : 'Chi theo ngày') + '</h3>' +
-      barChart(points, { ref: ref, refLabel: refLabel, title: 'Chi tiêu ' + cur.label }) +
-      '<div class="chart-caption"><span class="key"><i></i>Số tiền chi</span>' + (R.period !== 'year' && R.offset === 0 ? '<span class="key"><i class="today"></i>Hôm nay</span>' : '') + (ref ? '<span class="key"><i class="line"></i>' + esc(refLabel) + '</span>' : '') + '<span>Chạm vào cột để xem số</span></div>' +
+      barChart(points, { ref: ref, title: 'Chi tiêu ' + cur.label }) +
+      '<div class="chart-caption"><span class="key"><i></i>Số tiền chi</span>' + (R.period !== 'year' && R.offset === 0 ? '<span class="key"><i class="today"></i>Hôm nay</span>' : '') + (ref ? '<span class="key"><i class="line"></i>' + esc(refLabel) + '</span>' : '') + '</div>' +
       '<details class="table-view"><summary>Xem dạng bảng</summary><table class="mini-table"><tbody>' +
       tableRows.filter(function (r) { return r[1]; }).map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td class="num">' + money(r[1]) + '</td></tr>'; }).join('') +
       '</tbody></table></details></section>';
 
-    // Theo hạng mục
-    var cats = byCategory(list), prevCats = {};
-    byCategory(prevList).forEach(function (c) { prevCats[c.name] = c.total; });
-    html += '<section class="card"><h3>Theo hạng mục</h3>';
-    if (!cats.length) html += '<div class="empty">' + mascot('sleepy', 'e-mascot') + 'Không có khoản chi nào trong kỳ này.</div>';
-    var top = cats.length ? cats[0].total : 1;
-    cats.forEach(function (c) {
-      var pct = total ? c.total / total * 100 : 0;
-      var pv = prevCats[c.name] || 0;
-      var ch = pv ? Math.round((c.total - pv) / pv * 100) : null;
-      html += '<div class="cat-row"><span class="ic">' + catIcon(c.name) + '</span><span class="nm">' + esc(c.name) + '</span><span class="val num">' + money(c.total) + '</span>' +
-        '<span></span><span class="bar-track"><span style="width:' + (c.total / top * 100).toFixed(1) + '%"></span></span>' +
-        '<span class="meta num">' + Math.round(pct) + '%' + (ch !== null && cur.to < t ? ' · <span class="delta ' + (ch > 0 ? 'up' : ch < 0 ? 'down' : 'flat') + '">' + (ch > 0 ? '▲' : ch < 0 ? '▼' : '') + Math.abs(ch) + '%</span>' : '') + '</span></div>';
-    });
-    html += '</section>';
-
-    // Nhận xét
-    var ins = insights(list, prevList, cats, prevCats, cur, elapsed, total);
-    if (ins.length) {
-      html += '<section class="card"><h3>Nhận xét</h3><ul class="insights">' + ins.map(function (x) {
-        return '<li><span class="i-ic">' + x[0] + '</span><span>' + x[1] + '</span></li>';
-      }).join('') + '</ul></section>';
-    }
-
-    // Top khoản lớn
-    var big = list.slice().sort(function (a, b) { return b.amount - a.amount; }).slice(0, 5);
-    if (big.length) html += '<section class="card"><h3>5 khoản chi lớn nhất</h3><ul class="tx-list">' + big.map(function (x) { return txItem(x, true); }).join('') + '</ul></section>';
-
-    // Xu hướng 12 tháng
+    // 6. Xu hướng 12 tháng
     if (R.period === 'month') {
       var trend = [];
       for (var k = 11; k >= 0; k--) {
@@ -611,11 +652,24 @@
         var tv = sum(expenses(pr.from, pr.to));
         trend.push({ label: 'T' + (pr.m + 1), value: tv, tip: pr.label + '|' + money(tv), hl: k === 0 });
       }
-      var avg = sum(trend.map(function (p) { return { amount: p.value }; })) / trend.filter(function (p) { return p.value; }).length || 0;
-      html += '<section class="card"><h3>Xu hướng 12 tháng</h3>' + barChart(trend, { ref: +state.settings.monthlyBudget, refLabel: 'Ngân sách', title: 'Xu hướng 12 tháng' }) +
-        '<div class="chart-caption"><span class="key"><i></i>Tổng chi tháng</span>' + (state.settings.monthlyBudget ? '<span class="key"><i class="line"></i>Ngân sách ' + compact(+state.settings.monthlyBudget) + '</span>' : '') + '<span>TB: ' + money(avg) + '/tháng</span></div></section>';
+      var nz = trend.filter(function (p) { return p.value; });
+      var avg = nz.length ? nz.reduce(function (a, p) { return a + p.value; }, 0) / nz.length : 0;
+      var overN = S.monthlyBudget ? nz.filter(function (p) { return p.value > S.monthlyBudget; }).length : 0;
+      html += '<section class="card"><h3>Xu hướng 12 tháng</h3>' + barChart(trend, { ref: +S.monthlyBudget, title: 'Xu hướng 12 tháng' }) +
+        '<div class="chart-caption"><span class="key"><i></i>Tổng chi tháng</span>' + (S.monthlyBudget ? '<span class="key"><i class="line"></i>Ngân sách ' + compact(+S.monthlyBudget) + '</span>' : '') + '</div>' +
+        '<p class="help">Trung bình <b class="num">' + money(avg) + '</b>/tháng' + (S.monthlyBudget ? ' · ' + overN + '/' + nz.length + ' tháng vượt ngân sách' : '') + '.</p></section>';
     }
-    return html;
+
+    // 7. Nhận xét + khoản lớn
+    var ins = insights(list, prevList, cats, prevCats, cur, elapsed, total);
+    if (ins.length) {
+      html += '<section class="card"><h3>Nhận xét</h3><ul class="insights">' + ins.map(function (x) {
+        return '<li><span class="i-ic">' + x[0] + '</span><span>' + x[1] + '</span></li>';
+      }).join('') + '</ul></section>';
+    }
+    var big = list.slice().sort(function (a, b) { return b.amount - a.amount; }).slice(0, 5);
+    if (big.length) html += '<section class="card"><h3>5 khoản chi lớn nhất</h3><ul class="tx-list">' + big.map(function (x) { return txItem(x, true); }).join('') + '</ul></section>';
+    return html + '</div>';
   }
 
   function insights(list, prevList, cats, prevCats, cur, elapsed, total) {
@@ -815,7 +869,7 @@
   /* ================= Toast & tooltip ================= */
   var toastTimer;
   function toast(msg, mood) {
-    var el = $('#toast'); el.innerHTML = mascot(mood || 'happy'); el.appendChild(document.createTextNode(msg)); el.hidden = false;
+    var el = $('#toast'); el.textContent = msg; el.classList.toggle('err', mood === 'worried' || mood === 'shocked'); el.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.hidden = true; }, 2800);
   }
   function showTip(target) {
@@ -1027,7 +1081,7 @@
 
   /* ================= Boot ================= */
   if (location.hash === '#add') { history.replaceState(null, '', location.pathname); setTimeout(function () { openSheet(null); }, 50); }
-  $('#brandMascot').innerHTML = mascot('happy');
+  $('#brandMascot').innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#1f4d3a"/><circle cx="20" cy="20" r="15.5" fill="none" stroke="#d9bf86" stroke-width=".8"/><path d="M20 29 V18" stroke="#f8f4ea" stroke-width="1.6" stroke-linecap="round"/><path d="M20 19 C15 12 10 13 9.5 17 C13 21 17 21 20 19Z" fill="#f8f4ea"/><path d="M20 17 C24 9 30 10 31 14 C28 19 23 19.5 20 17Z" fill="#d9bf86"/></svg>';
   $('#sheetMascot').innerHTML = mascot('proud');
   render();
   if (state.conn.url) scheduleSync(0);
