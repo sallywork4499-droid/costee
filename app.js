@@ -60,44 +60,55 @@
     return num < 1000 ? Math.round(num * 1e3) : Math.round(num);
   }
 
-  /* ================= Mascot: bé Mầm ================= */
-  /** mood: happy | ok | worried | shocked | sleepy | proud */
+  /* ================= Mascot: bé Capy ================= */
+  /** Mascot bé Capy. mood: happy | ok | worried | shocked | sleepy | proud */
   function mascot(mood, cls) {
-    var ink = '#4b4237', body = '#f4ecd6', shade = '#e7dbbd', leaf = '#9bb97c', leaf2 = '#6f8f5e', cheek = '#f2b3a0', heart = '#ef9f8a', coin = '#e2b65a';
-    var droop = mood === 'worried' || mood === 'shocked';
+    var ink = '#4b3a2c', fur = '#c99a6e', head = '#d4a87c', shade = '#b8875c', snout = '#e2c19c', ear = '#a97a52', nose = '#5e4332';
+    var cheek = '#f1a995', heart = '#ef9f8a', coin = '#e2b65a', yuzu = '#f0a94e', leaf = '#7f9f6a';
     var sw = 'stroke="' + ink + '" stroke-linecap="round" stroke-linejoin="round"';
     var s = '<svg class="' + (cls || '') + '" viewBox="0 0 120 120" aria-hidden="true" focusable="false">';
-    s += '<ellipse cx="60" cy="113" rx="30" ry="3.5" fill="rgba(75,66,55,.12)"/>';
-    s += '<path d="M60 34 Q61 26 59 18" fill="none" ' + sw + ' stroke-width="2.2"/>';
-    s += '<g transform="rotate(' + (droop ? -22 : 0) + ' 59 21)"><path d="M59 21 C50 11 38 12 35 19 C42 27 53 27 59 21Z" fill="' + leaf + '" ' + sw + ' stroke-width="2"/></g>';
-    s += '<g transform="rotate(' + (droop ? 22 : 0) + ' 60 19)"><path d="M60 19 C66 8 79 8 84 14 C79 23 68 25 60 19Z" fill="' + leaf2 + '" ' + sw + ' stroke-width="2"/></g>';
-    s += '<path d="M60 32 C43 32 33 50 30 71 C27 95 41 110 60 110 C79 110 93 95 90 71 C87 50 77 32 60 32Z" fill="' + body + '" ' + sw + ' stroke-width="2.4"/>';
-    s += '<path d="M79 46 C87 58 90 78 84 96 C80 103 74 107 68 108 C80 100 86 84 84 66 C83 57 81 51 79 46Z" fill="' + shade + '"/>';
-    s += '<ellipse cx="43" cy="80" rx="6" ry="3.6" fill="' + cheek + '" opacity=".85"/><ellipse cx="77" cy="80" rx="6" ry="3.6" fill="' + cheek + '" opacity=".85"/>';
+    s += '<ellipse cx="60" cy="113" rx="32" ry="3.5" fill="rgba(75,58,44,.13)"/>';
+    // thân
+    s += '<path d="M28 93 C28 76 41 68 60 68 C79 68 92 76 92 93 C92 106 80 111 60 111 C40 111 28 106 28 93Z" fill="' + fur + '" ' + sw + ' stroke-width="2.4"/>';
+    s += '<path d="M80 74 C88 80 91 90 89 99 C87 105 81 108 74 109 C82 103 85 94 83 85 C82 80 81 77 80 74Z" fill="' + shade + '" opacity=".55"/>';
+    s += '<ellipse cx="47" cy="110" rx="8" ry="3.8" fill="' + head + '" ' + sw + ' stroke-width="2"/><ellipse cx="73" cy="110" rx="8" ry="3.8" fill="' + head + '" ' + sw + ' stroke-width="2"/>';
+    // tai
+    s += '<ellipse cx="37" cy="36" rx="5" ry="4" fill="' + ear + '" ' + sw + ' stroke-width="2"/><ellipse cx="83" cy="36" rx="5" ry="4" fill="' + ear + '" ' + sw + ' stroke-width="2"/>';
+    // đầu (hơi vuông, đặc trưng capybara)
+    s += '<path d="M31 50 C31 38 40 33 60 33 C80 33 89 38 89 50 L90 62 C90 74 79 80 60 80 C41 80 30 74 30 62Z" fill="' + head + '" ' + sw + ' stroke-width="2.4"/>';
+    // quả quýt trên đầu
+    s += '<circle cx="60" cy="27" r="7.5" fill="' + yuzu + '" ' + sw + ' stroke-width="2"/><path d="M60 20 C62 15 67 14 70 16 C68 20 64 21 60 20Z" fill="' + leaf + '" ' + sw + ' stroke-width="1.6"/><circle cx="57.5" cy="25" r="1.6" fill="#fff" opacity=".7"/>';
+    // mõm
+    s += '<path d="M40 60 C40 54 48 52 60 52 C72 52 80 54 80 60 C80 70 72 76 60 76 C48 76 40 70 40 60Z" fill="' + snout + '"/>';
+    s += '<path d="M51 56 C51 53.5 55 53 60 53 C65 53 69 53.5 69 56 C69 59 65 60.5 60 60.5 C55 60.5 51 59 51 56Z" fill="' + nose + '"/>';
+    s += '<ellipse cx="36" cy="60" rx="4.5" ry="2.8" fill="' + cheek + '" opacity=".8"/><ellipse cx="84" cy="60" rx="4.5" ry="2.8" fill="' + cheek + '" opacity=".8"/>';
+    // mắt
     var g = '<g fill="none" ' + sw + ' stroke-width="2.4">';
-    if (mood === 'happy' || mood === 'proud') s += g + '<path d="M40 72 Q45 67 50 72"/><path d="M70 72 Q75 67 80 72"/></g>';
-    else if (mood === 'sleepy') s += g + '<path d="M40 72 Q45 76 50 72"/><path d="M70 72 Q75 76 80 72"/></g>';
-    else if (mood === 'shocked') s += '<circle cx="45" cy="71" r="4.5" fill="#fff" ' + sw + ' stroke-width="2"/><circle cx="75" cy="71" r="4.5" fill="#fff" ' + sw + ' stroke-width="2"/><circle cx="45" cy="72" r="2" fill="' + ink + '"/><circle cx="75" cy="72" r="2" fill="' + ink + '"/>';
+    if (mood === 'happy' || mood === 'proud') s += g + '<path d="M38 47 Q42 43 46 47"/><path d="M74 47 Q78 43 82 47"/></g>';
+    else if (mood === 'sleepy') s += g + '<path d="M38 47 Q42 50 46 47"/><path d="M74 47 Q78 50 82 47"/></g>';
+    else if (mood === 'shocked') s += '<circle cx="42" cy="46" r="4" fill="#fff" ' + sw + ' stroke-width="2"/><circle cx="78" cy="46" r="4" fill="#fff" ' + sw + ' stroke-width="2"/><circle cx="42" cy="46.5" r="1.8" fill="' + ink + '"/><circle cx="78" cy="46.5" r="1.8" fill="' + ink + '"/>';
     else {
-      s += '<circle cx="45" cy="71" r="2.8" fill="' + ink + '"/><circle cx="75" cy="71" r="2.8" fill="' + ink + '"/>';
-      if (mood === 'worried') s += g.replace('2.4', '2') + '<path d="M39 64 L49 66"/><path d="M81 64 L71 66"/></g>';
+      s += '<circle cx="42" cy="46" r="2.6" fill="' + ink + '"/><circle cx="78" cy="46" r="2.6" fill="' + ink + '"/><circle cx="42.9" cy="45.1" r=".8" fill="#fff"/><circle cx="78.9" cy="45.1" r=".8" fill="#fff"/>';
+      if (mood === 'worried') s += g.replace('2.4', '2') + '<path d="M36 39 L46 41"/><path d="M84 39 L74 41"/></g>';
     }
-    if (mood === 'happy' || mood === 'ok') s += '<path d="M55 81 Q60 86 65 81" fill="none" ' + sw + ' stroke-width="2.2"/>';
-    else if (mood === 'proud') s += '<path d="M54 80 Q60 89 66 80Z" fill="#e08f78" ' + sw + ' stroke-width="2"/>';
-    else if (mood === 'worried') s += '<path d="M54 84 Q57 81 60 84 Q63 87 66 84" fill="none" ' + sw + ' stroke-width="2"/>';
-    else if (mood === 'shocked') s += '<ellipse cx="60" cy="85" rx="3.5" ry="4.5" fill="' + ink + '"/>';
-    else s += '<ellipse cx="60" cy="83" rx="2.4" ry="2" fill="' + ink + '"/>';
+    // miệng
+    if (mood === 'shocked') s += '<ellipse cx="60" cy="69" rx="2.6" ry="3.2" fill="' + ink + '"/>';
+    else if (mood === 'worried') s += '<path d="M55 69 Q57.5 67 60 69 Q62.5 71 65 69" fill="none" ' + sw + ' stroke-width="1.8"/>';
+    else if (mood === 'sleepy') s += '<ellipse cx="60" cy="68" rx="1.8" ry="1.5" fill="' + ink + '"/>';
+    else s += '<path d="M60 60.5 V65 M55 65 Q57.5 68.5 60 65 Q62.5 68.5 65 65" fill="none" ' + sw + ' stroke-width="1.8"/>';
+    // tay + đồ ôm
     if (mood === 'sleepy') {
-      s += '<g fill="none" ' + sw + ' stroke-width="2.2"><path d="M38 94 Q46 98 52 96"/><path d="M82 94 Q74 98 68 96"/></g>';
-      s += '<text x="86" y="44" font-family="Caveat, cursive" font-size="16" font-weight="700" fill="' + ink + '">z</text><text x="96" y="34" font-family="Caveat, cursive" font-size="12" font-weight="700" fill="' + ink + '">z</text>';
+      s += '<g fill="none" ' + sw + ' stroke-width="2.2"><path d="M40 90 Q48 96 56 93"/><path d="M80 90 Q72 96 64 93"/></g>';
+      s += '<text x="88" y="26" font-family="Caveat, cursive" font-size="16" font-weight="700" fill="' + ink + '">z</text><text x="98" y="16" font-family="Caveat, cursive" font-size="12" font-weight="700" fill="' + ink + '">z</text>';
     } else if (mood === 'proud' || mood === 'worried' || mood === 'shocked') {
-      s += '<circle cx="60" cy="96" r="10" fill="' + coin + '" ' + sw + ' stroke-width="2"/><circle cx="60" cy="96" r="6.3" fill="none" ' + sw + ' stroke-width="1.3"/>';
-      s += '<g fill="none" ' + sw + ' stroke-width="2.2"><path d="M37 90 Q44 95 51 94"/><path d="M83 90 Q76 95 69 94"/></g>';
+      s += '<circle cx="60" cy="92" r="10" fill="' + coin + '" ' + sw + ' stroke-width="2"/><circle cx="60" cy="92" r="6.3" fill="none" ' + sw + ' stroke-width="1.3"/>';
+      s += '<ellipse cx="49" cy="93" rx="5" ry="4" fill="' + head + '" ' + sw + ' stroke-width="2"/><ellipse cx="71" cy="93" rx="5" ry="4" fill="' + head + '" ' + sw + ' stroke-width="2"/>';
     } else {
-      s += '<path d="M60 105 C49 98 45 93 47 88.5 C49 84.5 55 84.5 60 90 C65 84.5 71 84.5 73 88.5 C75 93 71 98 60 105Z" fill="' + heart + '" ' + sw + ' stroke-width="2"/>';
-      s += '<g fill="none" ' + sw + ' stroke-width="2.2"><path d="M36 88 Q42 94 48 92"/><path d="M84 88 Q78 94 72 92"/></g>';
+      s += '<path d="M60 101 C50 95 46 90.5 48 86.5 C50 83 55.5 83 60 88 C64.5 83 70 83 72 86.5 C74 90.5 70 95 60 101Z" fill="' + heart + '" ' + sw + ' stroke-width="2"/>';
+      s += '<ellipse cx="48" cy="92" rx="5" ry="4" fill="' + head + '" ' + sw + ' stroke-width="2"/><ellipse cx="72" cy="92" rx="5" ry="4" fill="' + head + '" ' + sw + ' stroke-width="2"/>';
     }
-    if (mood === 'worried') s += '<path d="M90 52 Q95 59 93 62 Q89 64 88 59 Q88 56 90 52Z" fill="#a9d3ea" ' + sw + ' stroke-width="1.5"/>';
+    if (mood === 'worried') s += '<path d="M94 36 Q99 43 97 46 Q93 48 92 43 Q92 40 94 36Z" fill="#a9d3ea" ' + sw + ' stroke-width="1.5"/>';
+    if (mood === 'shocked') s += '<g ' + sw + ' stroke-width="2"><path d="M22 36 L27 42"/><path d="M98 36 L93 42"/></g>';
     return s + '</svg>';
   }
 
@@ -1131,5 +1142,5 @@
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () { /* ignore */ });
 
   // cho test
-  window.__costee = { parseAmount: parseAmount, state: state, monthSnapshot: monthSnapshot };
+  window.__costee = { parseAmount: parseAmount, state: state, monthSnapshot: monthSnapshot, mascot: mascot };
 })();
