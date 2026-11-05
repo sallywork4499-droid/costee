@@ -338,7 +338,8 @@
     $('#todayLabel').textContent = DOW_LONG[now.getDay()] + ', ' + pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear();
     $('.app').classList.toggle('wide', state.view === 'report');
     $$('.tabbar [data-view]').forEach(function (b) { b.classList.toggle('active', b.dataset.view === state.view); });
-    var html = ({ today: viewToday, report: viewReport, history: viewHistory, settings: viewSettings })[state.view]();
+    var html = ({ today: viewToday, report: viewReport, history: viewHistory, settings: viewSettings, guide: viewGuide })[state.view] || viewToday;
+    html = html();
     var v = $('#view');
     var keepFocus = document.activeElement && document.activeElement.id && v.contains(document.activeElement) ? document.activeElement.id : null;
     var selStart = keepFocus && document.activeElement.selectionStart;
@@ -470,8 +471,8 @@
     html += '</section>';
 
     if (!state.tx.length) {
-      html += '<section class="card"><h3>Bắt đầu nhẹ nhàng</h3><p class="help">Kết nối Google Sheet ở <b>Cài đặt</b> để mang toàn bộ dữ liệu cũ vào app. Hoặc thử app với dữ liệu mẫu trước.</p>' +
-        '<div class="btn-row"><button class="btn primary" data-go="settings">Kết nối Google Sheet</button><button class="btn" id="demoBtn">Dùng thử dữ liệu mẫu</button></div></section>';
+      html += '<section class="card"><h3>Bắt đầu nhẹ nhàng</h3><p class="help">Mới dùng Costee? Xem hướng dẫn 2 phút: cài app ra màn hình chính, ghi chi tiêu và lưu vào Google Sheet của bạn. Hoặc thử app với dữ liệu mẫu trước.</p>' +
+        '<div class="btn-row"><button class="btn primary" data-go="guide">Xem hướng dẫn</button><button class="btn" id="demoBtn">Dùng thử dữ liệu mẫu</button></div></section>';
     }
     return html;
   }
@@ -801,20 +802,19 @@
   /* ---------- Settings ---------- */
   function viewSettings() {
     var S = state.settings, C = state.conn;
-    var html = '<div class="page-head"><h1>Cài đặt</h1><p>Tuỳ chỉnh để app hợp với bạn hơn.</p></div><section class="card" id="conn"><h3>Kết nối Google Sheet</h3>' +
+    var html = '<div class="page-head"><h1>Cài đặt</h1><p>Tuỳ chỉnh để app hợp với bạn hơn.</p></div>' +
+      '<button type="button" class="soft-card guide-link" data-go="guide"><span class="sc-ic">' + ART.heart + '</span><span class="sc-t"><b>Hướng dẫn sử dụng</b><span>Cài app, ghi chi tiêu, kết nối Google Sheet</span></span><span class="chev">›</span></button>' +
+      '<section class="card" id="conn"><h3>Kết nối Google Sheet</h3>' +
       (C.url ? '<p class="help">Trạng thái: <b>' + (state.syncError ? '⚠ ' + esc(state.syncError) : state.lastSync ? '✓ Đồng bộ lúc ' + new Date(state.lastSync).toLocaleString('vi-VN') : 'Chưa đồng bộ') + '</b>' +
         (state.queue.length ? ' · ' + state.queue.length + ' thay đổi chờ gửi' : '') + '</p>' :
-        '<div class="help">Dữ liệu đang chỉ lưu trên máy này. Kết nối để lưu vào Google Sheet và dùng trên nhiều thiết bị:<ol>' +
-        '<li>Mở Google Sheet → <b>Tiện ích mở rộng → Apps Script</b>.</li>' +
-        '<li>Xoá code mẫu, dán toàn bộ file <code>apps-script/Code.gs</code> (trong repo), bấm Lưu.</li>' +
-        '<li>Tải lại Google Sheet → menu <b>Costee → Khởi tạo</b> → chép <b>mã bí mật</b>.</li>' +
-        '<li>Trong Apps Script: <b>Triển khai → Tùy chọn triển khai mới → Ứng dụng web</b>, "Người có quyền truy cập": <b>Bất kỳ ai</b> → chép URL.</li>' +
-        '<li>Dán URL và mã vào đây → <b>Kết nối</b>.</li></ol></div>') +
+        '<div class="help">Dữ liệu đang chỉ lưu trên máy này. Kết nối Google Sheet của bạn để lưu lâu dài và dùng trên nhiều thiết bị. ' +
+        '<button class="link-inline" data-go="guide" data-anchor="guideSheet">Xem hướng dẫn từng bước →</button></div>') +
       '<label class="field"><span class="field-label">URL ứng dụng web</span><input id="connUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(state.connDraft.url != null ? state.connDraft.url : C.url) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
       '<label class="field"><span class="field-label">Mã bí mật</span><input id="connToken" placeholder="16 ký tự" value="' + esc(state.connDraft.token != null ? state.connDraft.token : C.token) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
       '<div class="btn-row"><button class="btn primary" id="connSave">' + (C.url ? 'Lưu & kiểm tra' : 'Kết nối') + '</button>' +
-      (C.url ? '<button class="btn" id="syncNow">Đồng bộ ngay</button><button class="btn" id="importOld">Nhập dữ liệu cũ từ tab "1. Chi tiêu"</button><button class="btn ghost danger" id="connRemove">Ngắt kết nối</button>' : '') +
-      '</div></section>';
+      (C.url ? '<button class="btn" id="syncNow">Đồng bộ ngay</button><button class="btn ghost danger" id="connRemove">Ngắt kết nối</button>' : '') +
+      '</div>' + (C.url ? '<details class="advanced"><summary>Nâng cao</summary><p class="help">Nếu Google Sheet của bạn có sẵn tab <b>"1. Chi tiêu"</b> (cột Ngày | Nội dung | Hạng mục | Số tiền), có thể nhập toàn bộ vào app. Chạy lại không bị trùng.</p>' +
+        '<div class="btn-row"><button class="btn" id="importOld">Nhập dữ liệu từ tab "1. Chi tiêu"</button></div></details>' : '') + '</section>';
 
     html += '<section class="card" id="budgetCard"><h3>Ngân sách tháng</h3><label class="field"><span class="field-label">Tổng được chi mỗi tháng</span>' +
       '<input id="monthlyBudget" inputmode="decimal" placeholder="vd: 8tr" value="' + (+S.monthlyBudget ? nf.format(+S.monthlyBudget) : '') + '"></label>' +
@@ -853,6 +853,66 @@
       '<button class="btn ghost danger" id="wipeLocal">Xoá dữ liệu trên máy này</button></div>' +
       '<p class="help">Mẹo: trên iPhone bấm <b>Chia sẻ → Thêm vào MH chính</b>, trên Android bấm <b>⋮ → Cài đặt ứng dụng</b> để dùng như app thật.</p></section>';
     return html;
+  }
+
+  /* ---------- Hướng dẫn cho người mới ---------- */
+  function viewGuide() {
+    var step = function (n, t, body) {
+      return '<li class="g-step"><span class="g-n">' + n + '</span><div><b>' + t + '</b>' + (body ? '<div class="help">' + body + '</div>' : '') + '</div></li>';
+    };
+    var html = '<div class="page-head"><h1>Hướng dẫn</h1><p>Vài phút làm quen là dùng được ngay.</p></div>';
+    html += '<div class="greet" style="padding-top:0;justify-content:center">' + mascot('happy', 'greet-mascot') + '</div>';
+
+    html += '<section class="card"><h3>1. Cài Costee lên điện thoại</h3><ol class="g-list">' +
+      step('📱', 'iPhone (Safari)', 'Bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên) → <b>Thêm vào MH chính</b>.') +
+      step('🤖', 'Android (Chrome)', 'Bấm <b>⋮</b> → <b>Cài đặt ứng dụng</b> hoặc <b>Thêm vào màn hình chính</b>.') +
+      '</ol><p class="help">Sau đó mở Costee từ icon bé mèo, dùng như app bình thường.</p></section>';
+
+    html += '<section class="card"><h3>2. Ghi chi tiêu trong 5 giây</h3><ol class="g-list">' +
+      step(1, 'Bấm nút Ghi ở giữa thanh dưới', '') +
+      step(2, 'Gõ số tiền', '<code>45</code> = 45.000đ · <code>45k</code> = 45.000đ · <code>1.2tr</code> = 1.200.000đ') +
+      step(3, 'Chọn hạng mục → Lưu', 'Hạng mục hay dùng tự lên đầu. Quên ghi hôm qua? Bấm nút <b>Hôm qua</b>.') +
+      step('🌱', 'Để dành', 'Định mua mà không mua? Ghi vào <b>Để dành</b> để thấy mình giữ lại được bao nhiêu.') +
+      '</ol></section>';
+
+    html += '<section class="card"><h3>3. Đặt ngân sách (nên làm)</h3><p class="help">Vào <b>Cài đặt → Ngân sách tháng</b>, nhập một con số (vd <code>8tr</code>). Costee sẽ tự tính <b>mức được chi mỗi ngày</b> và nhắc khi sắp vượt. Có thể thêm <b>hạn mức theo nhóm</b> cho Ăn uống, Mua sắm…</p>' +
+      '<div class="btn-row"><button class="btn primary" data-go="settings" data-anchor="budgetCard">Đặt ngân sách</button></div></section>';
+
+    html += '<section class="card" id="guideSheet"><h3>4. Lưu vào Google Sheet của bạn (tuỳ chọn)</h3>' +
+      '<p class="help">Không kết nối thì dữ liệu chỉ nằm trên máy này và có thể mất nếu xoá dữ liệu trình duyệt. Kết nối Google Sheet để <b>lưu lâu dài</b> và <b>dùng trên nhiều máy</b>. Dữ liệu nằm trong sheet <b>của chính bạn</b> – không ai khác xem được. Làm 1 lần, khoảng 5 phút, nên làm trên máy tính.</p><ol class="g-list">' +
+      step(1, 'Tạo một Google Sheet mới', 'Mở <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a> (đăng nhập Gmail cá nhân).') +
+      step(2, 'Dán code Costee vào Apps Script', 'Trong sheet: <b>Tiện ích mở rộng → Apps Script</b> → xoá hết code mẫu → bấm nút dưới đây để sao chép → dán vào → bấm <b>Lưu</b> 💾.' +
+        '<div class="btn-row"><button class="btn" id="copyScript">Sao chép code Apps Script</button></div>') +
+      step(3, 'Khởi tạo & lấy mã bí mật', 'Quay lại sheet, <b>tải lại trang</b>. Trên menu có thêm <b>Costee</b> → bấm <b>1. Khởi tạo & lấy mã bí mật</b>. Google hỏi quyền: chọn tài khoản → <b>Nâng cao</b> → <b>Đi tới… (không an toàn)</b> → <b>Cho phép</b> (vì đây là script của chính bạn). Chép <b>mã bí mật</b>.') +
+      step(4, 'Triển khai thành ứng dụng web', 'Trong Apps Script: <b>Triển khai → Tùy chọn triển khai mới</b> → ⚙ chọn <b>Ứng dụng web</b>. <b>Thực thi dưới dạng: Tôi</b> · <b>Người có quyền truy cập: Bất kỳ ai</b> → <b>Triển khai</b> → chép <b>URL</b> (kết thúc bằng <code>/exec</code>).') +
+      step(5, 'Kết nối trong Costee', 'Vào <b>Cài đặt</b> → dán URL và mã bí mật → <b>Kết nối</b>. Thấy chấm xanh <b>"Đã đồng bộ"</b> là xong.') +
+      '</ol><div class="btn-row"><button class="btn primary" data-go="settings" data-anchor="conn">Mở Cài đặt để kết nối</button></div>' +
+      '<p class="help">Báo lỗi "Không gọi được Apps Script"? Mở lại bước 4, chắc chắn chọn <b>Bất kỳ ai</b> (không phải "Bất kỳ ai có tài khoản Google"), rồi chọn <b>Phiên bản mới → Triển khai</b>.</p></section>';
+
+    html += '<section class="card"><h3>Riêng tư</h3><p class="help">Costee không có máy chủ riêng và không thu thập dữ liệu. Mọi khoản chi chỉ nằm trên máy bạn và trong Google Sheet của bạn. Đừng chia sẻ URL và mã bí mật cho người khác.</p></section>';
+    return html;
+  }
+
+  function copyScript(btn) {
+    btn.disabled = true; btn.textContent = 'Đang lấy code…';
+    fetch('apps-script/Code.gs', { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (code) {
+      return navigator.clipboard.writeText(code).then(function () {
+        toast('Đã sao chép code – dán vào Apps Script nhé');
+        btn.textContent = 'Đã sao chép ✓';
+      }, function () {
+        // Trình duyệt không cho chép tự động → hiện ô chữ để chép tay
+        var ta = document.createElement('textarea');
+        ta.className = 'input'; ta.rows = 6; ta.readOnly = true; ta.value = code;
+        btn.parentNode.appendChild(ta); ta.focus(); ta.select();
+        btn.textContent = 'Chọn tất cả rồi chép đoạn dưới';
+      });
+    }).catch(function () {
+      toast('Không lấy được code. Mở file Code.gs trên GitHub để chép nhé', 'worried');
+      btn.textContent = 'Sao chép code Apps Script';
+    }).then(function () { btn.disabled = false; });
   }
 
   /* ================= Add / edit sheet ================= */
@@ -1038,6 +1098,7 @@
         if (!confirm('Ngắt kết nối Google Sheet trên máy này?')) return;
         state.conn = { url: '', token: '' }; state.queue = []; store.set('conn', state.conn); state.connDraft = {}; save(); return render();
       case 'importOld': return importOld();
+      case 'copyScript': return copyScript(t);
     }
   });
 

@@ -376,3 +376,16 @@ details.table-view summary { cursor: pointer; font-size: 13px; font-weight: 800;
   .period-nav .lbl { min-width: 96px; }
 }
 @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } .dot.busy { animation: none; } }
+
+/* Hướng dẫn */
+.g-list { list-style: none; margin: 0; padding: 0; }
+.g-step { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.g-step:first-child { border-top: 0; padding-top: 0; }
+.g-step .g-n { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--sage); color: var(--brand); display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+.g-step .help { margin: 2px 0 0; }
+.g-step .help a { color: var(--brand); font-weight: 700; }
+.guide-link { background: var(--sage); margin: 10px 0 2px; }
+.link-inline { border: 0; background: none; padding: 0; color: var(--brand); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
+details.advanced { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+details.advanced summary { cursor: pointer; font-size: 13px; font-weight: 800; color: var(--text-2); }
+textarea.input { font: 12px/1.4 ui-monospace, monospace; margin-top: 8px; resize: vertical; }
