@@ -121,28 +121,20 @@
   }
 
   /* ================= Default data ================= */
+  // Bộ mặc định chung cho người dùng mới (không chứa số liệu cá nhân)
   var DEFAULT_CATEGORIES = [
-    { name: 'Tiền ăn', icon: '🍜' }, { name: 'Coffee', icon: '☕' }, { name: 'Quần áo', icon: '👗' },
-    { name: 'Skincare/Mỹ phẩm', icon: '💄' }, { name: 'Học thêm/Khoá học', icon: '📚' }, { name: 'Phòng trọ', icon: '🏠' },
-    { name: 'Mua quà', icon: '🎁' }, { name: 'Nuôi xe', icon: '🛵' }, { name: 'Mời ae/mọi người', icon: '🍻' },
-    { name: 'Trải nghiệm/Du lịch', icon: '✈️' }, { name: 'Sức khoẻ', icon: '💊' }, { name: 'Gửi về nhà', icon: '👨‍👩‍👧' },
-    { name: 'Thiết bị học tập/làm việc', icon: '💻' }, { name: 'Sports', icon: '🏸' }, { name: 'Tài khoản AI', icon: '🤖' },
-    { name: 'Đầu tư', icon: '📈' }, { name: 'Chi tiêu Lễ Tết', icon: '🧧' }, { name: 'Khác', icon: '📦' }
+    { name: 'Ăn uống', icon: '🍜' }, { name: 'Cà phê & đồ uống', icon: '☕' }, { name: 'Đi lại', icon: '🛵' },
+    { name: 'Nhà ở', icon: '🏠' }, { name: 'Hoá đơn', icon: '🧾' }, { name: 'Mua sắm', icon: '🛍️' },
+    { name: 'Làm đẹp', icon: '💄' }, { name: 'Sức khoẻ', icon: '💊' }, { name: 'Học tập', icon: '📚' },
+    { name: 'Giải trí', icon: '🎬' }, { name: 'Du lịch', icon: '✈️' }, { name: 'Quà tặng', icon: '🎁' },
+    { name: 'Gia đình', icon: '👨‍👩‍👧' }, { name: 'Khác', icon: '📦' }
   ];
   var DEFAULT_SETTINGS = {
-    monthlyBudget: 9000000,
+    monthlyBudget: 0,          // người dùng tự đặt
     categories: DEFAULT_CATEGORIES,
-    budgets: [
-      { id: 'b1', name: 'Ăn uống', limit: 2500000, cats: ['Tiền ăn'] },
-      { id: 'b2', name: 'Coffee học bài', limit: 700000, cats: ['Coffee'] },
-      { id: 'b3', name: 'Học', limit: 1000000, cats: ['Học thêm/Khoá học', 'Thiết bị học tập/làm việc'] },
-      { id: 'b4', name: 'Sports', limit: 500000, cats: ['Sports'] },
-      { id: 'b5', name: 'Trải nghiệm', limit: 500000, cats: ['Trải nghiệm/Du lịch'] },
-      { id: 'b6', name: 'Quần áo & mỹ phẩm', limit: 500000, cats: ['Quần áo', 'Skincare/Mỹ phẩm'] },
-      { id: 'b7', name: 'Phòng trọ', limit: 3200000, cats: ['Phòng trọ'] }
-    ],
+    budgets: [],               // người dùng tự thêm nhóm hạn mức
     // Hạng mục không tính vào "chi tiêu sinh hoạt" khi tính tiền được chi mỗi ngày
-    excludeFromDaily: ['Phòng trọ', 'Đầu tư', 'Gửi về nhà'],
+    excludeFromDaily: ['Nhà ở'],
     updatedAt: 0
   };
 
@@ -419,6 +411,11 @@
     html += '<section class="greet"><div class="greet-text"><div class="greet-hi">' + greetWord() + '</div><h1 class="greet-h">' + head + '</h1><p class="greet-sub">' + sub + '</p></div>' +
       mascot(mood, 'greet-mascot') + '<span class="hand" aria-hidden="true">' + note + '</span></section>';
 
+    // Chưa đặt ngân sách: thẻ mời đặt
+    if (!s.budget) {
+      html += '<div class="hero-wrap"><button type="button" class="soft-card" data-go="settings" data-anchor="budgetCard"><span class="sc-ic">' + ART.target + '</span>' +
+        '<span class="sc-t"><b>Đặt ngân sách tháng</b><span>Chỉ cần một con số – app sẽ tính giúp bạn mức chi mỗi ngày.</span></span><span class="chev">›</span></button></div>';
+    }
     // Thẻ chính: mức chi hôm nay
     if (s.budget) {
       html += '<div class="hero-wrap"><button type="button" class="soft-card" data-go="report"><span class="sc-ic">' + ART.leaf + '</span>' +
@@ -442,7 +439,7 @@
     var wk = weekData(s);
     var mPct = s.budget ? Math.round(s.spent / s.budget * 100) : 0;
     html += '<div class="sec-head"><h3>Dành cho bạn</h3><button class="link" data-go="report">Xem báo cáo</button></div><div class="fy">' +
-      '<button type="button" class="fy-card q-peach" data-go="report">' + ART.sun + '<span class="fy-k">Tuần này</span><span class="fy-v">' + wk.got + '/' + wk.past + '</span><span class="fy-s">ngày giữ mức</span></button>' +
+      '<button type="button" class="fy-card q-peach" data-go="report">' + ART.sun + '<span class="fy-k">Tuần này</span><span class="fy-v">' + (s.budget ? wk.got + '/' + wk.past : '—') + '</span><span class="fy-s">' + (s.budget ? 'ngày giữ mức' : 'chưa có ngân sách') + '</span></button>' +
       '<button type="button" class="fy-card q-lavender" data-go="report">' + ART.moon + '<span class="fy-k">Tháng ' + (s.m + 1) + '</span><span class="fy-v">' + (s.budget ? mPct + '%' : compact(s.spent)) + '</span><span class="fy-s">' + (s.budget ? compact(s.spent) + ' / ' + compact(s.budget) : 'đã chi') + '</span></button>' +
       '<button type="button" class="fy-card q-sage" data-go="history">' + ART.jar + '<span class="fy-k">Để dành</span><span class="fy-v">' + compact(s.saved) + '</span><span class="fy-s">tháng này</span></button></div>';
 
@@ -819,9 +816,9 @@
       (C.url ? '<button class="btn" id="syncNow">Đồng bộ ngay</button><button class="btn" id="importOld">Nhập dữ liệu cũ từ tab "1. Chi tiêu"</button><button class="btn ghost danger" id="connRemove">Ngắt kết nối</button>' : '') +
       '</div></section>';
 
-    html += '<section class="card"><h3>Ngân sách tháng</h3><label class="field"><span class="field-label">Tổng được chi mỗi tháng</span>' +
-      '<input id="monthlyBudget" inputmode="decimal" value="' + nf.format(+S.monthlyBudget || 0) + '"></label>' +
-      '<p class="help">Gõ nhanh: 9tr, 9.000.000… App dùng số này để tính <b>mức được chi mỗi ngày</b>.</p>' +
+    html += '<section class="card" id="budgetCard"><h3>Ngân sách tháng</h3><label class="field"><span class="field-label">Tổng được chi mỗi tháng</span>' +
+      '<input id="monthlyBudget" inputmode="decimal" placeholder="vd: 8tr" value="' + (+S.monthlyBudget ? nf.format(+S.monthlyBudget) : '') + '"></label>' +
+      '<p class="help">Gõ nhanh: 8tr, 8.000.000… App dùng số này để tính <b>mức được chi mỗi ngày</b>.</p>' +
       '<div class="field-label">Khoản cố định (không tính vào mức chi mỗi ngày)</div><div class="check-grid">' +
       S.categories.map(function (c) {
         return '<label><input type="checkbox" data-excl="' + esc(c.name) + '"' + ((S.excludeFromDaily || []).indexOf(c.name) >= 0 ? ' checked' : '') + '> ' + c.icon + ' ' + esc(c.name) + '</label>';
@@ -829,6 +826,7 @@
 
     html += '<section class="card" id="budgets"><div class="card-head"><h3>Hạn mức theo nhóm</h3><button class="link" id="addBudget">+ Thêm nhóm</button></div>' +
       '<p class="help">Mỗi nhóm có thể gồm nhiều hạng mục (vd "Quần áo & mỹ phẩm"). App cảnh báo khi dùng ≥ 85%.</p>';
+    if (!(S.budgets || []).length) html += '<p class="help"><b>Chưa có nhóm nào.</b> Bấm <b>+ Thêm nhóm</b> để đặt hạn mức cho những khoản bạn muốn giữ, ví dụ Ăn uống, Cà phê, Mua sắm.</p>';
     (S.budgets || []).forEach(function (b, i) {
       html += '<div class="group-edit" data-bi="' + i + '"><div class="g-row">' +
         '<input class="input" data-bf="name" value="' + esc(b.name) + '" aria-label="Tên nhóm">' +
@@ -961,14 +959,14 @@
     var rnd = function (a, b) { return Math.round((a + Math.random() * (b - a)) / 1000) * 1000; };
     var now = new Date(), out = [];
     for (var i = 0; i < 75; i++) {
-      var d = ymd(addDays(now, -i));
+      var d = ymd(addDays(now, -i)), base = Date.now() - i * 864e5;
       var n = 1 + Math.floor(Math.random() * 3);
-      for (var j = 0; j < n; j++) out.push({ id: uid(), date: d, amount: rnd(20000, 70000), category: 'Tiền ăn', note: ['Cơm trưa', 'Bún bò', 'Phở', 'Cơm tối'][j % 4], type: 'expense', createdAt: Date.now() - i * 864e5 + j });
-      if (Math.random() < 0.45) out.push({ id: uid(), date: d, amount: rnd(29000, 65000), category: 'Coffee', note: 'Coffee học bài', type: 'expense', createdAt: Date.now() - i * 864e5 + 5 });
-      if (Math.random() < 0.08) out.push({ id: uid(), date: d, amount: rnd(150000, 600000), category: ['Quần áo', 'Skincare/Mỹ phẩm', 'Mua quà', 'Sports'][i % 4], note: '', type: 'expense', createdAt: Date.now() - i * 864e5 + 6 });
-      if (Math.random() < 0.05) out.push({ id: uid(), date: d, amount: rnd(200000, 800000), category: 'Quần áo', note: 'Trả hàng, không mua nữa', type: 'saved', createdAt: Date.now() - i * 864e5 + 7 });
-      if (addDays(now, -i).getDate() === 5) out.push({ id: uid(), date: d, amount: 3200000, category: 'Phòng trọ', note: 'Tiền phòng', type: 'expense', createdAt: Date.now() - i * 864e5 + 8 });
-      if (addDays(now, -i).getDate() === 10) out.push({ id: uid(), date: d, amount: 100000, category: 'Nuôi xe', note: 'Đổ xăng', type: 'expense', createdAt: Date.now() - i * 864e5 + 9 });
+      for (var j = 0; j < n; j++) out.push({ id: uid(), date: d, amount: rnd(25000, 70000), category: 'Ăn uống', note: ['Cơm trưa', 'Bún bò', 'Phở', 'Cơm tối'][j % 4], type: 'expense', createdAt: base + j });
+      if (Math.random() < 0.45) out.push({ id: uid(), date: d, amount: rnd(29000, 60000), category: 'Cà phê & đồ uống', note: 'Cà phê', type: 'expense', createdAt: base + 5 });
+      if (Math.random() < 0.08) out.push({ id: uid(), date: d, amount: rnd(150000, 600000), category: ['Mua sắm', 'Làm đẹp', 'Quà tặng', 'Giải trí'][i % 4], note: '', type: 'expense', createdAt: base + 6 });
+      if (Math.random() < 0.05) out.push({ id: uid(), date: d, amount: rnd(200000, 800000), category: 'Mua sắm', note: 'Định mua mà thôi', type: 'saved', createdAt: base + 7 });
+      if (addDays(now, -i).getDate() === 5) out.push({ id: uid(), date: d, amount: 3000000, category: 'Nhà ở', note: 'Tiền nhà', type: 'expense', createdAt: base + 8 });
+      if (addDays(now, -i).getDate() === 10) out.push({ id: uid(), date: d, amount: 100000, category: 'Đi lại', note: 'Đổ xăng', type: 'expense', createdAt: base + 9 });
     }
     state.tx = out; save(); render(); toast('Đã nạp dữ liệu mẫu – xoá ở Cài đặt khi muốn dùng thật');
   }
