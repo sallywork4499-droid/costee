@@ -1,5 +1,5 @@
 /* Service worker: cho phép mở app khi offline. Không đụng tới request tới Google. */
-var CACHE = 'costee-v13';
+var CACHE = 'costee-v14';
 var ASSETS = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }).then(function () { return self.skipWaiting(); }));

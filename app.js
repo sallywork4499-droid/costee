@@ -362,7 +362,7 @@
     var sub = (showDate ? DOW[d.getDay()] + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + ' · ' : '') + esc(t.category);
     return '<li><button type="button" class="tx" data-edit="' + esc(t.id) + '">' +
       '<span class="ic ' + catTint(t.category) + '">' + catIcon(t.category) + '</span>' +
-      '<span class="mid"><span class="t1">' + esc(t.note || t.category) + (t.type === 'saved' ? '<span class="tag green">nhịn được</span>' : t.amount >= 1000000 ? '<span class="tag">khoản lớn</span>' : '') + '</span><span class="t2">' + sub + '</span></span>' +
+      '<span class="mid"><span class="t1">' + esc(t.note || t.category) + (t.type === 'saved' ? '<span class="tag green">để dành</span>' : t.amount >= 1000000 ? '<span class="tag">khoản lớn</span>' : '') + '</span><span class="t2">' + sub + '</span></span>' +
       '<span class="amt num' + (t.type === 'saved' ? ' saved' : '') + '">' + (t.type === 'saved' ? '+' : '−') + money(t.amount) + '</span>' +
       '</button></li>';
   }
@@ -431,7 +431,7 @@
     // Ô truy cập nhanh
     html += '<div class="quick">' +
       '<button type="button" class="q-peach" data-quick="add">' + ART.wallet + 'Ghi chi</button>' +
-      '<button type="button" class="q-sage" data-quick="saved">' + ART.jar + 'Nhịn được</button>' +
+      '<button type="button" class="q-sage" data-quick="saved">' + ART.jar + 'Để dành</button>' +
       '<button type="button" class="q-mustard" data-go="report">' + ART.chart + 'Báo cáo</button>' +
       '<button type="button" class="q-lavender" data-go="settings" data-anchor="budgets">' + ART.target + 'Hạn mức</button></div>';
 
@@ -444,7 +444,7 @@
     html += '<div class="sec-head"><h3>Dành cho bạn</h3><button class="link" data-go="report">Xem báo cáo</button></div><div class="fy">' +
       '<button type="button" class="fy-card q-peach" data-go="report">' + ART.sun + '<span class="fy-k">Tuần này</span><span class="fy-v">' + wk.got + '/' + wk.past + '</span><span class="fy-s">ngày giữ mức</span></button>' +
       '<button type="button" class="fy-card q-lavender" data-go="report">' + ART.moon + '<span class="fy-k">Tháng ' + (s.m + 1) + '</span><span class="fy-v">' + (s.budget ? mPct + '%' : compact(s.spent)) + '</span><span class="fy-s">' + (s.budget ? compact(s.spent) + ' / ' + compact(s.budget) : 'đã chi') + '</span></button>' +
-      '<button type="button" class="fy-card q-sage" data-go="history">' + ART.jar + '<span class="fy-k">Nhịn được</span><span class="fy-v">' + compact(s.saved) + '</span><span class="fy-s">tháng này</span></button></div>';
+      '<button type="button" class="fy-card q-sage" data-go="history">' + ART.jar + '<span class="fy-k">Để dành</span><span class="fy-v">' + compact(s.saved) + '</span><span class="fy-s">tháng này</span></button></div>';
 
     if (s.budget && s.day >= 3 && s.projected > s.budget * 1.02) {
       html += '<div class="alert over" role="note"><span class="a-ic">!</span><span>Với nhịp hiện tại, cuối tháng có thể chi khoảng <b class="num">' + money(s.projected) +
@@ -612,7 +612,7 @@
       '<div class="s">' + list.length + ' khoản · trung bình ' + money(total / elapsed) + '/ngày</div></div>' +
       '<div class="kpi"><div class="k">Ngân sách</div><div class="v num">' + (budget ? money(budget) : '—') + '</div><div class="s">' + (budget ? 'Đã dùng <b>' + Math.round(used * 100) + '%</b>' : 'Chưa đặt') + '</div></div>' +
       '<div class="kpi"><div class="k">' + (total <= budget || !budget ? 'Còn lại' : 'Vượt') + '</div><div class="v num">' + (budget ? money(Math.abs(budget - total)) : '—') + '</div><div class="s">' + (budget ? '<span class="status ' + bSt + '">' + statusLabel(bSt) + '</span>' : '&nbsp;') + '</div></div>' +
-      '<div class="kpi"><div class="k">Nhịn được</div><div class="v num">' + money(saved) + '</div><div class="s">' + savedList.length + ' lần không mua</div></div>' +
+      '<div class="kpi"><div class="k">Để dành</div><div class="v num">' + money(saved) + '</div><div class="s">' + savedList.length + ' lần không mua</div></div>' +
       '</div>';
 
     // 2. Tổng chi so với ngân sách
@@ -778,7 +778,7 @@
     var html = '<div class="page-head"><h1>Lịch sử</h1><p>Mọi khoản bạn đã ghi, gọn gàng một chỗ.</p></div><div class="filters"><input id="histQ" type="search" placeholder="Tìm ghi chú, hạng mục, số tiền…" value="' + esc(H.q) + '" aria-label="Tìm kiếm">' +
       '<select id="histCat" aria-label="Lọc hạng mục"><option value="">Tất cả hạng mục</option>' +
       catNames.map(function (c) { return '<option' + (H.cat === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
-      '<div class="pills" role="tablist" style="margin-bottom:6px">' + [['', 'Tất cả'], ['expense', 'Chi tiêu'], ['saved', '💪 Nhịn được']].map(function (p) {
+      '<div class="pills" role="tablist" style="margin-bottom:6px">' + [['', 'Tất cả'], ['expense', 'Chi tiêu'], ['saved', 'Để dành']].map(function (p) {
         return '<button data-htype="' + p[0] + '" class="' + (H.type === p[0] ? 'on' : '') + '">' + p[1] + '</button>';
       }).join('') + '</div>';
     var totalExp = sum(list.filter(function (t) { return t.type !== 'saved'; }));
@@ -922,7 +922,7 @@
     upsertTx(t);
     closeSheet();
     if (form.type === 'saved') {
-      toast('Tuyệt! Đã nhịn được ' + money(amount) + ' 💪', 'proud');
+      toast('Tuyệt! Đã để dành ' + money(amount) + ' 🌱', 'proud');
     } else if (date === today() && state.settings.monthlyBudget) {
       var s = monthSnapshot(), left = s.allowance - s.dailyToday;
       toast('Đã lưu ' + money(amount) + ' · ' + (left >= 0 ? 'hôm nay còn ' + money(left) : 'vượt mức hôm nay ' + money(-left)), left >= 0 ? 'ok' : 'shocked');
@@ -976,7 +976,7 @@
   function exportCsv() {
     var rows = [['Ngày', 'Số tiền', 'Hạng mục', 'Ghi chú', 'Loại']];
     state.tx.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).forEach(function (t) {
-      rows.push([t.date, t.amount, t.category, t.note, t.type === 'saved' ? 'Nhịn được' : 'Chi']);
+      rows.push([t.date, t.amount, t.category, t.note, t.type === 'saved' ? 'Để dành' : 'Chi']);
     });
     var csv = '﻿' + rows.map(function (r) { return r.map(function (c) { c = String(c == null ? '' : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(','); }).join('\n');
     var a = document.createElement('a');
@@ -998,7 +998,7 @@
     if (!t) { hideTip(); return; }
     if (t.matches('.tabbar [data-view]')) return go(t.dataset.view);
     if (t.id === 'fab' || t.dataset.quick === 'add') return openSheet(null);
-    if (t.dataset.quick === 'saved') { openSheet(null); form.type = 'saved'; $$('input[name=type]').forEach(function (r) { r.checked = r.value === 'saved'; }); $('#typeHint').hidden = false; $('#sheetTitle').textContent = 'Ghi khoản nhịn được'; $('#sheetMascot').innerHTML = mascot('proud'); $('#sheetSub').textContent = 'Một món không mua cũng đáng để ăn mừng.'; return; }
+    if (t.dataset.quick === 'saved') { openSheet(null); form.type = 'saved'; $$('input[name=type]').forEach(function (r) { r.checked = r.value === 'saved'; }); $('#typeHint').hidden = false; $('#sheetTitle').textContent = 'Ghi khoản để dành'; $('#sheetMascot').innerHTML = mascot('proud'); $('#sheetSub').textContent = 'Một món không mua cũng đáng để ăn mừng.'; return; }
     if (t.dataset.go) return go(t.dataset.go, t.dataset.anchor);
     if (t.dataset.edit) { var tx = state.tx.filter(function (x) { return x.id === t.dataset.edit; })[0]; if (tx) openSheet(tx); return; }
     if (t.dataset.period) { state.report = { period: t.dataset.period, offset: 0 }; return render(); }
@@ -1058,7 +1058,7 @@
 
   document.addEventListener('change', function (e) {
     var t = e.target;
-    if (t.name === 'type') { form.type = t.value; $('#typeHint').hidden = form.type !== 'saved'; $('#sheetMascot').innerHTML = mascot(form.type === 'saved' ? 'proud' : 'happy'); $('#sheetSub').textContent = form.type === 'saved' ? 'Một món không mua cũng đáng để ăn mừng.' : 'Ghi lại một chút, nhẹ lòng hơn nhiều.'; $('#sheetTitle').textContent = state.editing ? 'Sửa khoản' : form.type === 'saved' ? 'Ghi khoản nhịn được' : 'Thêm khoản chi'; return; }
+    if (t.name === 'type') { form.type = t.value; $('#typeHint').hidden = form.type !== 'saved'; $('#sheetMascot').innerHTML = mascot(form.type === 'saved' ? 'proud' : 'happy'); $('#sheetSub').textContent = form.type === 'saved' ? 'Một món không mua cũng đáng để ăn mừng.' : 'Ghi lại một chút, nhẹ lòng hơn nhiều.'; $('#sheetTitle').textContent = state.editing ? 'Sửa khoản' : form.type === 'saved' ? 'Ghi khoản để dành' : 'Thêm khoản chi'; return; }
     if (t.id === 'histCat') { state.hist.cat = t.value; state.hist.limit = 40; return render(); }
     var s = settingsCopy();
     if (t.id === 'monthlyBudget') { s.monthlyBudget = parseAmountLoose(t.value); return saveSettings(s); }

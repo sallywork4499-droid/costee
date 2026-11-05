@@ -28,7 +28,7 @@ Ghi chi tiêu trong vài giây, xem báo cáo mỗi ngày và giữ ngân sách.
 | 🚦 **Hạn mức theo nhóm** (Ăn uống, Coffee học bài, Quần áo & mỹ phẩm…) có cảnh báo ✓ Ổn / ⚠ Sắp hết / ✕ Vượt | Trước đây phải chép lại bảng `SUMIF` cho từng tháng |
 | 🔮 **Dự báo cuối tháng**: cảnh báo sớm nếu đang chi quá tay | Chưa có |
 | 📊 **Báo cáo** theo tuần / tháng / năm: biểu đồ theo ngày, theo hạng mục, so sánh với kỳ trước, xu hướng 12 tháng, 5 khoản lớn nhất, nhận xét tự động | Chưa có |
-| 💪 **"Nhịn được"**: ghi lại món đã định mua mà không mua hoặc đã trả hàng (giống cột *"Đã tiết kiệm không mua linh tinh"*) | Có, nhưng phải cộng tay |
+| 🌱 **"Để dành"**: ghi lại món đã định mua mà không mua hoặc đã trả hàng (giống cột *"Đã tiết kiệm không mua linh tinh"*) | Có, nhưng phải cộng tay |
 | 📱 Dùng như app trên điện thoại, **vẫn ghi được khi mất mạng** (tự gửi lên khi có mạng lại) | |
 | 🔍 Lịch sử: tìm kiếm, lọc, sửa, xoá; xuất CSV | |
 
@@ -68,7 +68,7 @@ App không sửa tab cũ của bạn. Nó tạo thêm 2 tab: `Costee_GiaoDich` (
 ### Nhập dữ liệu cũ hoạt động thế nào
 
 - Đọc các cột *Ngày, Nội dung, Hạng mục, Số tiền* của tab `1. Chi tiêu`. Số thứ tự được bỏ khỏi tên hạng mục (`1. Tiền ăn` → `Tiền ăn`).
-- Các số nhập tay ở cột E (vùng *"Đã tiết kiệm không mua linh tinh"*) được nhập thành khoản **💪 Nhịn được**, kèm ghi chú ở cột F.
+- Các số nhập tay ở cột E (vùng *"Đã tiết kiệm không mua linh tinh"*) được nhập thành khoản **🌱 Để dành**, kèm ghi chú ở cột F.
 - Dòng không ghi ngày sẽ lấy ngày của dòng phía trên, và ghi chú có thêm *"(sheet cũ không ghi ngày)"* để bạn dễ tìm và sửa lại.
 - Dòng không có số tiền (ô tổng, ghi chú…) được bỏ qua.
 

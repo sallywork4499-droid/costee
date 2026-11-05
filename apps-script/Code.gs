@@ -1,7 +1,7 @@
 /**
  * Costee – backend Google Apps Script.
  * Gắn vào Google Sheet chi tiêu của bạn. Dữ liệu app được lưu trong 2 tab mới:
- *   - "Costee_GiaoDich": mỗi dòng là 1 khoản chi / khoản "nhịn được"
+ *   - "Costee_GiaoDich": mỗi dòng là 1 khoản chi / khoản "để dành"
  *   - "Costee_CaiDat"  : cài đặt (ngân sách, hạn mức, danh mục) dạng JSON
  * Tab cũ "1. Chi tiêu" KHÔNG bị sửa – chỉ được đọc khi nhập dữ liệu cũ.
  *
@@ -12,7 +12,8 @@ var TX_SHEET = 'Costee_GiaoDich';
 var SET_SHEET = 'Costee_CaiDat';
 var LEGACY_SHEET = '1. Chi tiêu';
 var TX_HEADERS = ['ID', 'Ngày', 'Số tiền', 'Hạng mục', 'Ghi chú', 'Loại', 'Tạo lúc', 'Sửa lúc'];
-var TYPE_LABEL = { expense: 'Chi', saved: 'Nhịn được' };
+var TYPE_LABEL = { expense: 'Chi', saved: 'Để dành' };
+var SAVED_LABELS = ['Để dành', 'Nhịn được', 'saved']; // nhận cả nhãn cũ
 
 /* ---------------- Menu trong Google Sheet ---------------- */
 
@@ -169,7 +170,7 @@ function readTx_() {
       amount: Number(r[2]) || 0,
       category: String(r[3] || 'Khác'),
       note: String(r[4] || ''),
-      type: r[5] === TYPE_LABEL.saved || r[5] === 'saved' ? 'saved' : 'expense',
+      type: SAVED_LABELS.indexOf(String(r[5])) >= 0 ? 'saved' : 'expense',
       createdAt: r[6] instanceof Date ? r[6].getTime() : Number(r[6]) || 0,
       updatedAt: r[7] instanceof Date ? r[7].getTime() : Number(r[7]) || 0
     });
@@ -280,7 +281,7 @@ function importLegacy_(replace) {
   });
   if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, TX_HEADERS.length).setValues(rows);
   var msg = 'Đã nhập ' + rows.length + ' dòng mới (' + parsed.stats.expense + ' khoản chi, ' +
-    parsed.stats.saved + ' khoản nhịn được trong sheet cũ).';
+    parsed.stats.saved + ' khoản để dành trong sheet cũ).';
   if (parsed.stats.undated) msg += ' ' + parsed.stats.undated + ' dòng không ghi ngày đã lấy theo ngày của dòng phía trên.';
   return { imported: rows.length, message: msg };
 }
