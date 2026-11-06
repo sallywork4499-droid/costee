@@ -389,3 +389,6 @@ details.table-view summary { cursor: pointer; font-size: 13px; font-weight: 800;
 details.advanced { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
 details.advanced summary { cursor: pointer; font-size: 13px; font-weight: 800; color: var(--text-2); }
 textarea.input { font: 12px/1.4 ui-monospace, monospace; margin-top: 8px; resize: vertical; }
+.g-video { margin: 4px 0 12px; }
+.g-video video { display: block; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 9 / 16; border-radius: 18px; background: var(--surface-2); box-shadow: var(--shadow); object-fit: cover; }
+.g-video .help { text-align: center; }

@@ -1,5 +1,5 @@
 /* Service worker: cho phép mở app khi offline. Không đụng tới request tới Google. */
-var CACHE = 'costee-v16';
+var CACHE = 'costee-v17';
 var ASSETS = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }).then(function () { return self.skipWaiting(); }));
@@ -12,10 +12,14 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   var url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
+  // Video: để trình duyệt tự tải (có Range request), không lưu cache
+  if (url.pathname.indexOf('/media/') >= 0 || e.request.headers.has('range')) return;
   // Mạng trước (để luôn có bản mới), lỗi mạng thì dùng bản đã lưu
   e.respondWith(fetch(e.request).then(function (res) {
-    var copy = res.clone();
-    caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
+    if (res.ok && res.status === 200) {
+      var copy = res.clone();
+      caches.open(CACHE).then(function (c) { return c.put(e.request, copy); }).catch(function () { /* bỏ qua */ });
+    }
     return res;
   }).catch(function () {
     return caches.match(e.request).then(function (r) { return r || caches.match('index.html'); });

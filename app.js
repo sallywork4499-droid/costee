@@ -879,6 +879,8 @@
       '<div class="btn-row"><button class="btn primary" data-go="settings" data-anchor="budgetCard">Đặt ngân sách</button></div></section>';
 
     html += '<section class="card" id="guideSheet"><h3>4. Lưu vào Google Sheet của bạn (tuỳ chọn)</h3>' +
+      '<div class="g-video"><video controls playsinline preload="none" poster="media/huong-dan-poster.jpg" src="media/huong-dan-google-sheet.mp4"></video>' +
+      '<p class="help">▶ Video 80 giây hướng dẫn từng bước. Hình Google trong video được minh hoạ đơn giản hoá.</p></div>' +
       '<p class="help">Không kết nối thì dữ liệu chỉ nằm trên máy này và có thể mất nếu xoá dữ liệu trình duyệt. Kết nối Google Sheet để <b>lưu lâu dài</b> và <b>dùng trên nhiều máy</b>. Dữ liệu nằm trong sheet <b>của chính bạn</b> – không ai khác xem được. Làm 1 lần, khoảng 5 phút, nên làm trên máy tính.</p><ol class="g-list">' +
       step(1, 'Tạo một Google Sheet mới', 'Mở <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a> (đăng nhập Gmail cá nhân).') +
       step(2, 'Dán code Costee vào Apps Script', 'Trong sheet: <b>Tiện ích mở rộng → Apps Script</b> → xoá hết code mẫu → bấm nút dưới đây để sao chép → dán vào → bấm <b>Lưu</b> 💾.' +
